@@ -9,11 +9,10 @@ services:
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms256m -Xmx512m"
     healthcheck:
+      test: curl -s http://localhost:9200 >/dev/null || exit 1
       interval: 30s
       timeout: 10s
       retries: 50
-    volumes:
-      - './tmp/volumes/es:/usr/share/elasticsearch/data'
 
   postgres:
     image: postgres:16.4
