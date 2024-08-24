@@ -31,3 +31,15 @@ docker compose up
 - `SERVER_PORT` defaults to `8818`
 - `API_SECRET` defaults to `no_auth` - this is a value that needs to be passed in every request (a
   placeholder for identifying authenticated clients)
+
+
+## Starting movies dataset
+
+Taken from [here](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows), Use the following duckdb command:
+
+```bash
+duckdb -c "copy (select Series_Title as name, Released_Year as released_year, \
+overview as description, Meta_score as rating, genre as tags \
+From read_csv('/tmp/imdb_top_1000.csv',  ignore_errors=true)) \
+to '/tmp/soc_movies.csv' ;"
+```
