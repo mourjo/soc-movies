@@ -53,7 +53,7 @@ services:
               "tags" : { "type": "keyword" },
               "rating" : { "type": "double" },
               "language" : { "type": "keyword" }, 
-              "released" : { "type": "date", "format": "strict_date_optional_time" }
+              "released_year" : { "type": "date", "format": "yyyy" }
             }
           }
         }'
