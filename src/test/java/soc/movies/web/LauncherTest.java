@@ -46,6 +46,8 @@ class LauncherTest {
 						"1999"))
 		);
 
+		esClient.indices().refresh();
+
 		SearchResponse<Movie> r = esClient.search(s -> s
 						.index("movies")
 						.query(q -> q
