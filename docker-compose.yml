@@ -7,12 +7,11 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - ELASTIC_USERNAME=${ES_USER}
     healthcheck:
       test: curl -s http://localhost:9200 >/dev/null || exit 1
-      interval: 1s
-      timeout: 300s
-      retries: 100
+      interval: 30s
+      timeout: 10s
+      retries: 50
     volumes:
       - './tmp/volumes/es:/usr/share/elasticsearch/data'
 
@@ -31,29 +30,3 @@ services:
       - './tmp/volumes/postgres:/var/lib/postgresql/data'
       - './src/test/resources/init.sql:/docker-entrypoint-initdb.d/init.sql'
 
-  index_creator:
-    container_name: es_index_creator
-    image: alpine/curl:8.2.1
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    restart: no
-    command:
-      - /bin/sh
-      - -c
-      - |
-        curl -s -o /dev/null --fail-with-body -XGET elasticsearch:9200/_cat/indices/movies \
-        || curl -s -X PUT "http://elasticsearch:9200/movies" -H "Content-Type: application/json" -d'
-          {
-            "settings": {"number_of_shards": 1, "number_of_replicas": 0},
-            "mappings": {
-              "properties": {
-                "name": { "type": "text" },
-                "description": { "type": "text" },
-                "tags" : { "type": "keyword" },
-                "rating" : { "type": "double" },
-                "language" : { "type": "keyword" },
-                "released_year" : { "type": "date", "format": "yyyy" }
-              }
-            }
-          }'

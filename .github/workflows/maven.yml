@@ -9,7 +9,6 @@ on:
 env:
   PG_DB: soc_movies_test_db
   AUTH_TOKEN: humpty_dumpty
-  ES_USER: ${{ github.actor }}
 
 
 jobs:
