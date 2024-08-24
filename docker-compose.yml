@@ -13,6 +13,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 50
+    volumes:
+      - './tmp/volumes/es:/usr/share/elasticsearch/data'
 
   postgres:
     image: postgres:16.4
