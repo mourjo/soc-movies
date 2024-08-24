@@ -9,9 +9,10 @@ services:
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms256m -Xmx512m"
     healthcheck:
+      start_period: 20s
       test: curl -s http://localhost:9200 >/dev/null || exit 1
       interval: 2s
-      timeout: 120s
+      timeout: 300s
       retries: 120
     volumes:
       - './tmp/volumes/es:/usr/share/elasticsearch/data'
