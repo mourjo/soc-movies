@@ -1,0 +1,32 @@
+services:
+  elasticsearch:
+    container_name: es_soc_movies
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    healthcheck:
+      test: curl -s http://localhost:9200 >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 50
+    volumes:
+      - './tmp/volumes/es:/usr/share/elasticsearch/data'
+
+  postgres:
+    image: postgres:16.4
+    container_name: postgres_soc_movies
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=soc_movies_db
+      - POSTGRES_PASSWORD=soc_movies
+      - POSTGRES_USER=justin
+    ports:
+      - '5432:5432'
+    volumes:
+      - './tmp/volumes/postgres:/var/lib/postgresql/data'
+      - './src/test/resources/init.sql:/docker-entrypoint-initdb.d/init.sql'
+
