@@ -61,6 +61,11 @@
   </build>
   <dependencies>
     <dependency>
+      <artifactId>elasticsearch-java</artifactId>
+      <groupId>co.elastic.clients</groupId>
+      <version>8.15.0</version>
+    </dependency>
+    <dependency>
       <artifactId>jooq</artifactId>
       <groupId>org.jooq</groupId>
       <version>3.19.10</version>

@@ -2,7 +2,6 @@
 
 [![Maven Build with Docker](https://github.com/mourjo/soc-movies/actions/workflows/maven.yml/badge.svg)](https://github.com/mourjo/soc-movies/actions/workflows/maven.yml)
 
-
 ## Scope
 
 - User registration (unique on username)
@@ -12,7 +11,6 @@
 - Get user by user-id
 - Search movie by random phrases (show name, avg rating, slug)
 - Search by tag (show name, avg rating, slug)
-
 
 ## Start dependent services
 
@@ -32,10 +30,11 @@ docker compose up
 - `API_SECRET` defaults to `no_auth` - this is a value that needs to be passed in every request (a
   placeholder for identifying authenticated clients)
 
-
 ## Starting movies dataset
 
-Taken from [here](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows), Use the following duckdb command:
+Taken
+from [here](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows),
+Use the following duckdb command:
 
 ```bash
 duckdb -c "copy (select Series_Title as name, Released_Year as released_year, \

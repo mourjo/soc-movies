@@ -24,14 +24,6 @@ public class Environment {
 	private final String esHost;
 	private final String esPort;
 
-	public static String getEsHost() {
-		return getInstance().esHost;
-	}
-
-	public static String getEsPort() {
-		return getInstance().esPort;
-	}
-
 	private Environment() {
 		postgresHost = getEnv(PG_HOST_ENV, "localhost");
 		postgresPort = getEnv(PG_PORT_ENV_VAR, "5432");
@@ -50,6 +42,14 @@ public class Environment {
 			port = Integer.parseInt(defaultPort);
 		}
 		serverPort = port;
+	}
+
+	public static String getEsHost() {
+		return getInstance().esHost;
+	}
+
+	public static String getEsPort() {
+		return getInstance().esPort;
 	}
 
 	public static Environment getInstance() {
