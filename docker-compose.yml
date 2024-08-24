@@ -9,8 +9,8 @@ services:
       - xpack.security.enabled=false
     healthcheck:
       test: curl -s http://localhost:9200 >/dev/null || exit 1
-      interval: 1s
-      timeout: 10s
+      interval: 2s
+      timeout: 120s
       retries: 120
     volumes:
       - './tmp/volumes/es:/usr/share/elasticsearch/data'
