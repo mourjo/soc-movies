@@ -4,6 +4,8 @@ import io.javalin.Javalin;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import soc.movies.common.Environment;
+import soc.movies.web.controller.MovieController;
+import soc.movies.web.controller.UserController;
 import soc.movies.web.javalin.ExceptionHandler;
 import soc.movies.web.javalin.OpenAPISetup;
 
@@ -15,11 +17,13 @@ public class Launcher {
 	}
 
 	public static Javalin buildApp() {
-		final Controller controller = new Controller();
+		final UserController userController = new UserController();
+		final MovieController movieController = new MovieController();
 
 		return Javalin.create(OpenAPISetup::registerPlugins)
-				.get("/user/{username}", controller::retrieveUser)
-				.post("/user", controller::createUser)
+				.get("/user/{username}", userController::retrieveUser)
+				.post("/user", userController::createUser)
+				.post("/movie", movieController::createMovie)
 				.get("/", ctx -> ctx.json(Map.of("message", "Hello world!")))
 				.exception(Exception.class, ExceptionHandler::handleException);
 	}

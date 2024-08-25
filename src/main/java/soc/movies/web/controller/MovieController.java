@@ -1,5 +1,4 @@
-package soc.movies.web;
-
+package soc.movies.web.controller;
 
 import static org.jooq.impl.DSL.asterisk;
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
@@ -20,16 +19,20 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.IntegrityConstraintViolationException;
 import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
+import soc.movies.common.TextTransformer;
+import soc.movies.entities.MovieEntity;
 import soc.movies.entities.UserEntity;
+import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
 import soc.movies.exceptions.UserAlreadyExistsException;
 import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.ErrorResponse;
+import soc.movies.web.dto.MovieCreationRequest;
+import soc.movies.web.dto.MovieInfoResponse;
 import soc.movies.web.dto.UserCreationRequest;
 import soc.movies.web.dto.UserInfoResponse;
 
-@Slf4j
-public class Controller {
+public class MovieController {
 
 	@SneakyThrows
 	private Connection getConnection() {
@@ -41,14 +44,13 @@ public class Controller {
 		return DriverManager.getConnection(connectionString, username, null);
 	}
 
-
 	@SneakyThrows
 	@OpenApi(
-			summary = "Create user",
-			operationId = "createUser",
-			path = "/user",
+			summary = "Create movie",
+			operationId = "createMovie",
+			path = "/movie",
 			requestBody = @OpenApiRequestBody(required = true, content = {
-					@OpenApiContent(from = UserCreationRequest.class)}),
+					@OpenApiContent(from = MovieCreationRequest.class)}),
 			methods = HttpMethod.POST,
 			headers = {
 					@OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
@@ -61,77 +63,42 @@ public class Controller {
 							@OpenApiContent(from = ErrorResponse.class)})
 			}
 	)
-	public void createUser(Context ctx) {
+	public void createMovie(Context ctx) {
 		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
 			throw new UnauthenticatedRequest();
 		}
-		var request = ctx.bodyAsClass(UserCreationRequest.class);
+		var request = ctx.bodyAsClass(MovieCreationRequest.class);
 		try (Connection conn = getConnection()) {
-			UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
-					.insertInto(UserEntity.table())
+			MovieEntity user = DSL.using(conn, SQLDialect.POSTGRES)
+					.insertInto(MovieEntity.table())
 					.columns(
-							UserEntity.usernameField()
-					).values(request.username())
-					.returningResult(
-							UserEntity.idField(),
-							UserEntity.usernameField(),
-							UserEntity.createdAtField()
+							MovieEntity.nameField(),
+							MovieEntity.slugField(),
+							MovieEntity.descriptionField(),
+							MovieEntity.tagsField(),
+							MovieEntity.releasedYearField(),
+							MovieEntity.languageField()
+					).values(
+							request.name(),
+							TextTransformer.slug(request.name()),
+							request.description(),
+							String.join(",", request.tags()),
+							request.releasedYear(),
+							request.language()
+					).returningResult(
+							MovieEntity.asterisk()
 					)
-					.fetchAnyInto(UserEntity.class);
+					.fetchAnyInto(MovieEntity.class);
 
 			if (user == null) {
 				throw new UserAlreadyExistsException();
 			}
 
-			ctx.json(UserInfoResponse.build(user));
+			ctx.json(MovieInfoResponse.build(user));
 			ctx.status(HttpStatus.CREATED);
 		} catch (IntegrityConstraintViolationException icve) {
-			throw new UserAlreadyExistsException();
+			throw new MovieAlreadyExistsException();
 		}
 	}
-
-	@SneakyThrows
-	@OpenApi(
-			summary = "Fetch user",
-			operationId = "retrieveUser",
-			path = "/user/{username}",
-			methods = HttpMethod.GET,
-			pathParams = {
-					@OpenApiParam(name = "username", type = String.class, description = "Username of the user")
-			},
-			headers = {
-					@OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
-			responses = {
-					@OpenApiResponse(status = "200", content = {
-							@OpenApiContent(from = UserInfoResponse.class)}),
-					@OpenApiResponse(status = "400", content = {
-							@OpenApiContent(from = ErrorResponse.class)}),
-					@OpenApiResponse(status = "401", content = {
-							@OpenApiContent(from = ErrorResponse.class)})
-			}
-	)
-	public void retrieveUser(Context ctx) {
-		String username = ctx.pathParam("username");
-
-		try (Connection conn = getConnection()) {
-			UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
-					.select(asterisk())
-					.from(UserEntity.table())
-					.where(UserEntity.usernameField().eq(username))
-					.fetchAnyInto(UserEntity.class);
-
-			if (user == null) {
-				throw new UserNotFoundException();
-			}
-
-			if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
-				throw new UnauthenticatedRequest();
-			}
-
-			ctx.json(UserInfoResponse.build(user));
-			ctx.status(HttpStatus.OK);
-		}
-	}
-
 
 }

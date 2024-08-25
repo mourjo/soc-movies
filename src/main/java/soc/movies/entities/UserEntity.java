@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import org.jooq.Field;
-import org.jooq.Record;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.impl.DSL;
 
@@ -39,7 +38,7 @@ public class UserEntity {
 		return DSL.field("username", String.class);
 	}
 
-	public static org.jooq.Table<Record> table() {
+	public static org.jooq.Table<org.jooq.Record> table() {
 		return DSL.table("users");
 	}
 

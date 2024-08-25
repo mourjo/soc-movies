@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
+import soc.movies.entities.MovieEntity;
 import soc.movies.entities.UserEntity;
 
 public class DbHelpers {
@@ -37,6 +38,16 @@ public class DbHelpers {
 					.values(username)
 					.returningResult(UserEntity.asterisk())
 					.fetchAnyInto(UserEntity.class);
+		}
+	}
+
+	@SneakyThrows
+	public static void deleteMovie(String slug) {
+		try (Connection conn = getConnection()) {
+			DSL.using(conn, SQLDialect.POSTGRES)
+					.delete(MovieEntity.table())
+					.where(MovieEntity.slugField().eq(slug))
+					.execute();
 		}
 	}
 

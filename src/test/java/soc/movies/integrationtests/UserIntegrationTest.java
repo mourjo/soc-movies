@@ -49,6 +49,8 @@ public class UserIntegrationTest {
 					HttpHelpers.headers()
 			);
 			Assertions.assertEquals(409, secondResponse.code());
+			var body = TypeConversion.toErrorResponse(secondResponse);
+			Assertions.assertEquals("User already exists", body.message());
 		});
 	}
 
