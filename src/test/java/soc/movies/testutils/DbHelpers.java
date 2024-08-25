@@ -1,8 +1,6 @@
 package soc.movies.testutils;
 
 
-import static org.jooq.impl.DSL.asterisk;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.UUID;

@@ -29,10 +29,10 @@ class LauncherTest {
 				.builder(HttpHost.create(serverUrl))
 				.build();
 
-		ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+		ElasticsearchTransport transport = new RestClientTransport(restClient,
+				new JacksonJsonpMapper());
 
 		ElasticsearchClient esClient = new ElasticsearchClient(transport);
-
 
 		esClient.index(i -> i
 				.index("movies")

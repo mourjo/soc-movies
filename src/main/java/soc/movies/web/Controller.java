@@ -85,7 +85,7 @@ public class Controller {
 
 			ctx.json(UserInfoResponse.build(user));
 			ctx.status(HttpStatus.CREATED);
-		} catch(IntegrityConstraintViolationException icve) {
+		} catch (IntegrityConstraintViolationException icve) {
 			throw new UserAlreadyExistsException();
 		}
 	}

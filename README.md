@@ -30,7 +30,6 @@ docker compose up
 - `API_SECRET` defaults to `no_auth` - this is a value that needs to be passed in every request (a
   placeholder for identifying authenticated clients)
 
-
 ## Compiling with Maven
 
 ```bash 
@@ -59,7 +58,6 @@ http://localhost:8818/swagger-ui
 ```bash
 API_SECRET=humpty_dumpty PG_DB=soc_wallet_test_db mvn test
 ```
-
 
 ## Movies dataset
 
