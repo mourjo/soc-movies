@@ -4,8 +4,8 @@
 
 ## Scope
 
-- User registration (unique on username)
-- One user can review one movie at most once
+- done - User registration (unique on username)
+- done - One user can review one movie at most once
 - Movie registration (default rating is 10) - return slug
 - Get movie by slug
 - Get user by user-id

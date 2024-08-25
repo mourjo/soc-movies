@@ -35,7 +35,8 @@ CREATE TABLE ratings (
    user_id integer REFERENCES users(id) NOT NULL,
    movie_id integer REFERENCES movies(id) NOT NULL,
    rating NUMERIC(5,2),
-   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+   CONSTRAINT one_review_per_user_movie UNIQUE (user_id, movie_id)
 );
 
 
@@ -65,5 +66,6 @@ CREATE TABLE ratings (
    user_id integer REFERENCES users(id) NOT NULL,
    movie_id integer REFERENCES movies(id) NOT NULL,
    rating NUMERIC(5,2),
-   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+   CONSTRAINT one_review_per_user_movie UNIQUE (user_id, movie_id)
 );
