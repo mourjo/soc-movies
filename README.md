@@ -6,9 +6,9 @@
 
 - done - User registration (unique on username)
 - done - One user can review one movie at most once
-- Movie registration (default rating is 10) - return slug
+- done - Movie registration (default rating is 10) - return slug
 - Get movie by slug
-- Get user by user-id
+- done - Get user by user-id
 - Search movie by random phrases (show name, avg rating, slug)
 - Search by tag (show name, avg rating, slug)
 
