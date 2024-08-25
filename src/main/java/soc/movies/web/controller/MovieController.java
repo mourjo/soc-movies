@@ -2,8 +2,13 @@ package soc.movies.web.controller;
 
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.json.JavalinJackson;
 import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
@@ -13,6 +18,8 @@ import io.javalin.openapi.OpenApiResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import lombok.SneakyThrows;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.jooq.SQLDialect;
 import org.jooq.exception.IntegrityConstraintViolationException;
 import org.jooq.impl.DSL;
@@ -64,7 +71,7 @@ public class MovieController {
 		}
 		var request = ctx.bodyAsClass(MovieCreationRequest.class);
 		try (Connection conn = getConnection()) {
-			MovieEntity user = DSL.using(conn, SQLDialect.POSTGRES)
+			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
 					.insertInto(MovieEntity.table())
 					.columns(
 							MovieEntity.nameField(),
@@ -85,11 +92,26 @@ public class MovieController {
 					)
 					.fetchAnyInto(MovieEntity.class);
 
-			if (user == null) {
+			if (movie == null) {
 				throw new UserAlreadyExistsException();
 			}
 
-			ctx.json(MovieInfoResponse.build(user));
+			RestClient restClient = RestClient
+					.builder(HttpHost.create("http://localhost:9200"))
+					.build();
+
+			ElasticsearchTransport transport = new RestClientTransport(restClient,
+					new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
+
+			ElasticsearchClient esClient = new ElasticsearchClient(transport);
+
+			esClient.index(i -> i
+					.index("movies")
+					.id(String.valueOf(movie.getId()))
+					.document(movie)
+			);
+
+			ctx.json(MovieInfoResponse.build(movie));
 			ctx.status(HttpStatus.CREATED);
 		} catch (IntegrityConstraintViolationException icve) {
 			throw new MovieAlreadyExistsException();

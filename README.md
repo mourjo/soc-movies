@@ -71,3 +71,9 @@ overview as description, Meta_score as rating, genre as tags \
 From read_csv('/tmp/imdb_top_1000.csv',  ignore_errors=true)) \
 to '/tmp/soc_movies.csv' ;"
 ```
+
+## Elasticsearch Querying
+
+```bash
+curl -H'Content-Type: application/json' localhost:9200/movies/_search -d'{"query":{"match":{"name":"show"}}}' | jq .
+```

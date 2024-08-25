@@ -1,5 +1,7 @@
 package soc.movies.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import java.time.OffsetDateTime;
@@ -10,27 +12,35 @@ import org.jooq.impl.DSL;
 @Entity(name = "movies")
 public class MovieEntity {
 
+	@JsonIgnore
 	@Column(name = "id")
 	long id;
 
+	@JsonProperty("name")
 	@Column(name = "name")
 	String name;
 
+	@JsonProperty("slug")
 	@Column(name = "slug")
 	String slug;
 
+	@JsonProperty("description")
 	@Column(name = "description")
 	String description;
 
+	@JsonProperty("released_year")
 	@Column(name = "released_year")
 	int releasedYear;
 
+	@JsonProperty("language")
 	@Column(name = "lang")
 	String language;
 
+	@JsonProperty("tags")
 	@Column(name = "tags")
 	String tags;
 
+	@JsonIgnore
 	@Column(name = "created_at")
 	OffsetDateTime createdAt;
 
