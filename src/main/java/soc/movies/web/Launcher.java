@@ -18,6 +18,8 @@ public class Launcher {
 		final Controller controller = new Controller();
 
 		return Javalin.create(OpenAPISetup::registerPlugins)
+				.get("/user/{username}", controller::retrieveUser)
+				.post("/user", controller::createUser)
 				.get("/", ctx -> ctx.json(Map.of("message", "Hello world!")))
 				.exception(Exception.class, ExceptionHandler::handleException);
 	}

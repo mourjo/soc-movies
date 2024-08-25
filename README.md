@@ -30,7 +30,38 @@ docker compose up
 - `API_SECRET` defaults to `no_auth` - this is a value that needs to be passed in every request (a
   placeholder for identifying authenticated clients)
 
-## Starting movies dataset
+
+## Compiling with Maven
+
+```bash 
+./mvnw clean package
+```
+
+## Running with Java 21
+
+```bash 
+API_SECRET=humpty_dumpty java -cp target/soc-movies-1.0-SNAPSHOT.jar soc.movies.web.Launcher
+```
+
+## Compiling and running in one step
+
+```bash
+API_SECRET=humpty_dumpty ./mvnw clean compile exec:java  -Dexec.mainClass="soc.wallet.web.Launcher"
+```
+
+## Accessing the API
+
+There is a Swagger page that will provide details about the individual APIs
+http://localhost:8818/swagger-ui
+
+## Running tests
+
+```bash
+API_SECRET=humpty_dumpty PG_DB=soc_wallet_test_db mvn test
+```
+
+
+## Movies dataset
 
 Taken
 from [here](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows),

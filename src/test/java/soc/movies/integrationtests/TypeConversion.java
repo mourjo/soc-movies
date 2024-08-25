@@ -5,6 +5,7 @@ import io.javalin.json.JavalinJackson;
 import java.util.Map;
 import lombok.SneakyThrows;
 import okhttp3.Response;
+import soc.movies.web.dto.UserInfoResponse;
 
 public class TypeConversion {
 
@@ -13,6 +14,13 @@ public class TypeConversion {
 	@SneakyThrows
 	public static Map<String, String> toMap(Response response) {
 		var typeRef = new TypeReference<Map<String, String>>() {
+		};
+		return jackson.fromJsonString(response.body().string(), typeRef.getType());
+	}
+
+	@SneakyThrows
+	public static UserInfoResponse toUserInfoResponse(Response response) {
+		var typeRef = new TypeReference<UserInfoResponse>() {
 		};
 		return jackson.fromJsonString(response.body().string(), typeRef.getType());
 	}
