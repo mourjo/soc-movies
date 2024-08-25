@@ -39,7 +39,8 @@ public class MovieIntegrationTest {
 			Assertions.assertEquals("English", body.language());
 			Assertions.assertEquals("The Shawshank Redemption", body.name());
 			Assertions.assertEquals("the-shawshank-redemption", body.slug());
-			Assertions.assertEquals(List.of("period_drama", "prison_drama", "tragedy", "epic"), body.tags());
+			Assertions.assertEquals(List.of("period_drama", "prison_drama", "tragedy", "epic"),
+					body.tags());
 		});
 	}
 
@@ -70,10 +71,10 @@ public class MovieIntegrationTest {
 				.builder()
 				.name("The Shawshank Redemption")
 				.description("""
-							The Shawshank Redemption is a 1994 American prison drama film written
-							and directed by Frank Darabont, based on the 1982 Stephen King novella
-							Rita Hayworth and Shawshank Redemption.
-							""")
+						The Shawshank Redemption is a 1994 American prison drama film written
+						and directed by Frank Darabont, based on the 1982 Stephen King novella
+						Rita Hayworth and Shawshank Redemption.
+						""")
 				.tags(List.of("period_drama", "prison_drama", "tragedy", "epic"))
 				.language("English")
 				.releasedYear(1970)

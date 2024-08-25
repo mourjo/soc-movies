@@ -1,6 +1,5 @@
 package soc.movies.web.controller;
 
-import static org.jooq.impl.DSL.asterisk;
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
 
 import io.javalin.http.Context;
@@ -14,22 +13,18 @@ import io.javalin.openapi.OpenApiResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.jooq.SQLDialect;
 import org.jooq.exception.IntegrityConstraintViolationException;
 import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
 import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
-import soc.movies.entities.UserEntity;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
 import soc.movies.exceptions.UserAlreadyExistsException;
-import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieCreationRequest;
 import soc.movies.web.dto.MovieInfoResponse;
-import soc.movies.web.dto.UserCreationRequest;
 import soc.movies.web.dto.UserInfoResponse;
 
 public class MovieController {
