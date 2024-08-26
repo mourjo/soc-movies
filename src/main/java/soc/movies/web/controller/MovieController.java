@@ -29,6 +29,7 @@ import soc.movies.entities.MovieEntity;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
 import soc.movies.exceptions.UserAlreadyExistsException;
+import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieCreationRequest;
 import soc.movies.web.dto.MovieInfoResponse;
@@ -118,4 +119,46 @@ public class MovieController {
 		}
 	}
 
+	@SneakyThrows
+	@OpenApi(
+			summary = "Fetch movie",
+			operationId = "retrieveMovie",
+			path = "/movie/{slug}",
+			methods = HttpMethod.GET,
+			pathParams = {
+					@OpenApiParam(name = "slug", type = String.class, description = "Movie identifier")
+			},
+			headers = {
+					@OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
+			responses = {
+					@OpenApiResponse(status = "200", content = {
+							@OpenApiContent(from = UserInfoResponse.class)}),
+					@OpenApiResponse(status = "400", content = {
+							@OpenApiContent(from = ErrorResponse.class)}),
+					@OpenApiResponse(status = "401", content = {
+							@OpenApiContent(from = ErrorResponse.class)})
+			}
+	)
+	public void retrieveMovie(Context ctx) {
+		String slug = ctx.pathParam("slug");
+
+		try (Connection conn = getConnection()) {
+			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
+					.select(MovieEntity.asterisk())
+					.from(MovieEntity.table())
+					.where(MovieEntity.slugField().eq(slug))
+					.fetchAnyInto(MovieEntity.class);
+
+			if (movie == null) {
+				throw new UserNotFoundException();
+			}
+
+			if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
+				throw new UnauthenticatedRequest();
+			}
+
+			ctx.json(MovieInfoResponse.build(movie));
+			ctx.status(HttpStatus.OK);
+		}
+	}
 }

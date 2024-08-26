@@ -34,12 +34,10 @@ public class TypeConversion {
 		return jackson.fromJsonString(response.body().string(), typeRef.getType());
 	}
 
-
 	@SneakyThrows
 	public static ErrorResponse toErrorResponse(Response response) {
 		var typeRef = new TypeReference<ErrorResponse>() {
 		};
 		return jackson.fromJsonString(response.body().string(), typeRef.getType());
 	}
-
 }

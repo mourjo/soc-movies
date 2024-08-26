@@ -66,6 +66,26 @@ public class MovieIntegrationTest {
 		});
 	}
 
+	@Test
+	void fetchMovie() {
+		JavalinTest.test(app, (server, client) -> {
+			client.post(
+					"/movie",
+					shawshankRedemption(),
+					HttpHelpers.headers()
+			);
+
+			var response = client.get("/movie/the-shawshank-redemption", HttpHelpers.headers());
+			Assertions.assertEquals(200, response.code());
+			var body = TypeConversion.toMovieInfoResponse(response);
+			Assertions.assertEquals("English", body.language());
+			Assertions.assertEquals("The Shawshank Redemption", body.name());
+			Assertions.assertEquals("the-shawshank-redemption", body.slug());
+			Assertions.assertEquals(List.of("period_drama", "prison_drama", "tragedy", "epic"),
+					body.tags());
+		});
+	}
+
 	MovieCreationRequest shawshankRedemption() {
 		return MovieCreationRequest
 				.builder()

@@ -132,6 +132,4 @@ public class UserController {
 			ctx.status(HttpStatus.OK);
 		}
 	}
-
-
 }

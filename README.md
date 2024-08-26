@@ -12,6 +12,9 @@
 - Search movie by random phrases (show name, avg rating, slug)
 - Search by tag (show name, avg rating, slug)
 
+
+- Tests for unauthenticated requests
+
 ## Start dependent services
 
 ```bash
