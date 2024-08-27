@@ -1,5 +1,6 @@
 package soc.movies.web.javalin;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
@@ -19,8 +20,14 @@ public class ExceptionHandler {
 			case IntegrityConstraintViolationException icve ->
 					handleIntegrityConstraintViolationException(icve, context);
 			case InvalidFormatException ife -> handleInvalidFormatException(ife, context);
+			case JsonMappingException jme -> handleJsonMappingException(jme, context);
 			default -> handleGenericException(e, context);
 		}
+	}
+
+	private static void handleJsonMappingException(JsonMappingException jme, Context context) {
+		context.status(HttpStatus.BAD_REQUEST);
+		context.json(ErrorResponse.build("Invalid json: " + jme.getMessage()));
 	}
 
 	private static void handleInvalidFormatException(InvalidFormatException e, Context context) {

@@ -25,6 +25,7 @@ public class Launcher {
 				.post("/user", userController::createUser)
 				.post("/movie", movieController::createMovie)
 				.get("/movie/{slug}", movieController::retrieveMovie)
+				.get("/search/movie", movieController::searchMovie)
 				.get("/", ctx -> ctx.json(Map.of("message", "Hello world!")))
 				.exception(Exception.class, ExceptionHandler::handleException);
 	}

@@ -17,6 +17,7 @@ import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -26,6 +27,7 @@ import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
 import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
+import soc.movies.entities.elasticsearch.MovieDocument;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
 import soc.movies.exceptions.UserAlreadyExistsException;
@@ -33,6 +35,7 @@ import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieCreationRequest;
 import soc.movies.web.dto.MovieInfoResponse;
+import soc.movies.web.dto.MovieSearchResponse;
 import soc.movies.web.dto.UserInfoResponse;
 
 public class MovieController {
@@ -160,5 +163,59 @@ public class MovieController {
 			ctx.json(MovieInfoResponse.build(movie));
 			ctx.status(HttpStatus.OK);
 		}
+	}
+
+	@SneakyThrows
+	@OpenApi(
+			summary = "Search movie",
+			operationId = "retrieveMovie",
+			path = "/search/movie?q={query}",
+			methods = HttpMethod.GET,
+			queryParams = {
+					@OpenApiParam(name = "q", type = String.class, description = "Search text")
+			},
+			headers = {
+					@OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
+			responses = {
+					@OpenApiResponse(status = "200", content = {
+							@OpenApiContent(from = UserInfoResponse.class)}),
+					@OpenApiResponse(status = "400", content = {
+							@OpenApiContent(from = ErrorResponse.class)}),
+					@OpenApiResponse(status = "401", content = {
+							@OpenApiContent(from = ErrorResponse.class)})
+			}
+	)
+	public void searchMovie(Context ctx) {
+		String qWords = ctx.queryParam("q");
+
+		RestClient restClient = RestClient
+				.builder(HttpHost.create("http://localhost:9200"))
+				.build();
+
+		ElasticsearchTransport transport = new RestClientTransport(restClient,
+				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
+
+		ElasticsearchClient esClient = new ElasticsearchClient(transport);
+
+		var hits = esClient.search(s -> s
+						.index("movies")
+						.query(q -> q.simpleQueryString(t -> t.query(qWords))), MovieDocument.class)
+				.hits()
+				.hits();
+
+		if (hits.isEmpty()) {
+			ctx.status(HttpStatus.OK);
+			ctx.json(MovieSearchResponse.build(qWords, List.of()));
+		}
+
+		var movies = hits
+				.stream()
+				.map(hit -> MovieEntity.fromDocument(hit.id(), hit.source()))
+				.toList();
+
+		ctx.status(HttpStatus.OK);
+		ctx.json(MovieSearchResponse.build(qWords, movies));
+
+
 	}
 }

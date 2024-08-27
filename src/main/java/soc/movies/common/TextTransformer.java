@@ -15,6 +15,9 @@ public class TextTransformer {
 	private static final Pattern DASHES = Pattern.compile("-{2,}");
 
 	public static String formatDate(OffsetDateTime dt) {
+		if (dt == null) {
+			return null;
+		}
 		return DateTimeFormatter.ISO_DATE_TIME.format(dt);
 	}
 

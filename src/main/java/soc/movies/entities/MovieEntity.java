@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 import org.jooq.Field;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.impl.DSL;
+import soc.movies.entities.elasticsearch.MovieDocument;
 
 @Entity(name = "movies")
 public class MovieEntity {
@@ -86,6 +87,19 @@ public class MovieEntity {
 	public static SelectFieldOrAsterisk[] asterisk() {
 		return new SelectFieldOrAsterisk[]{idField(), createdAtField(), slugField(),
 				descriptionField(), releasedYearField(), languageField(), tagsField(), nameField()};
+	}
+
+	public static MovieEntity fromDocument(String id, MovieDocument document) {
+		var movie = new MovieEntity();
+		movie.setCreatedAt(document.getCreatedAt());
+		movie.setId(Long.parseLong(id));
+		movie.setName(document.getName());
+		movie.setDescription(document.getDescription());
+		movie.setLanguage(document.getLanguage());
+		movie.setReleasedYear(document.getReleasedYear());
+		movie.setSlug(document.getSlug());
+		movie.setTags(String.join(",", document.getTags()));
+		return movie;
 	}
 
 	public long getId() {
