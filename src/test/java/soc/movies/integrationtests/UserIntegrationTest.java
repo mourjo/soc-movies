@@ -32,6 +32,19 @@ public class UserIntegrationTest {
 	}
 
 	@Test
+	void unauthenticatedCreateUser() {
+		String username = UUID.randomUUID().toString();
+
+		JavalinTest.test(app, (server, client) -> {
+			var response = client.post(
+					"/user",
+					new UserCreationRequest(username)
+			);
+			Assertions.assertEquals(401, response.code());
+		});
+	}
+
+	@Test
 	void createDuplicateUser() {
 		String username = UUID.randomUUID().toString();
 
@@ -67,6 +80,18 @@ public class UserIntegrationTest {
 			var body = TypeConversion.toUserInfoResponse(response);
 			Assertions.assertEquals(user.getId(), body.id());
 			Assertions.assertEquals(user.getUsername(), body.username());
+		});
+	}
+
+	@Test
+	void unauthenticatedFetchUser() {
+		var user = DbHelpers.insertUser("navin");
+
+		JavalinTest.test(app, (server, client) -> {
+			var response = client.get(
+					"/user/" + user.getUsername()
+			);
+			Assertions.assertEquals(401, response.code());
 		});
 	}
 }

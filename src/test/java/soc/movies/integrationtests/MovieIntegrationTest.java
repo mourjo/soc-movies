@@ -86,6 +86,31 @@ public class MovieIntegrationTest {
 		});
 	}
 
+	@Test
+	void unauthenticatedCreateMovie() {
+		JavalinTest.test(app, (server, client) -> {
+			var response = client.post(
+					"/movie",
+					shawshankRedemption()
+			);
+			Assertions.assertEquals(401, response.code());
+		});
+	}
+
+	@Test
+	void unauthenticatedFetchMovie() {
+		JavalinTest.test(app, (server, client) -> {
+			client.post(
+					"/movie",
+					shawshankRedemption(),
+					HttpHelpers.headers()
+			);
+
+			var response = client.get("/movie/the-shawshank-redemption");
+			Assertions.assertEquals(401, response.code());
+		});
+	}
+
 	MovieCreationRequest shawshankRedemption() {
 		return MovieCreationRequest
 				.builder()
