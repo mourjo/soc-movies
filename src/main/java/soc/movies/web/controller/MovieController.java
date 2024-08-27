@@ -3,6 +3,7 @@ package soc.movies.web.controller;
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
@@ -17,6 +18,7 @@ import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Comparator;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.apache.http.HttpHost;
@@ -210,12 +212,11 @@ public class MovieController {
 
 		var movies = hits
 				.stream()
+				.sorted((o1, o2) -> o2.score().compareTo(o1.score()))
 				.map(hit -> MovieEntity.fromDocument(hit.id(), hit.source()))
 				.toList();
 
 		ctx.status(HttpStatus.OK);
 		ctx.json(MovieSearchResponse.build(qWords, movies));
-
-
 	}
 }

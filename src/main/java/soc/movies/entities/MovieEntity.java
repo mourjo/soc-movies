@@ -91,14 +91,14 @@ public class MovieEntity {
 
 	public static MovieEntity fromDocument(String id, MovieDocument document) {
 		var movie = new MovieEntity();
-		movie.setCreatedAt(document.getCreatedAt());
+		movie.setCreatedAt(document.createdAt());
 		movie.setId(Long.parseLong(id));
-		movie.setName(document.getName());
-		movie.setDescription(document.getDescription());
-		movie.setLanguage(document.getLanguage());
-		movie.setReleasedYear(document.getReleasedYear());
-		movie.setSlug(document.getSlug());
-		movie.setTags(String.join(",", document.getTags()));
+		movie.setName(document.name());
+		movie.setDescription(document.description());
+		movie.setLanguage(document.language());
+		movie.setReleasedYear(document.releasedYear());
+		movie.setSlug(document.slug());
+		movie.setTags(String.join(",", document.tags()));
 		return movie;
 	}
 
