@@ -139,6 +139,31 @@ public class MovieIntegrationTest {
 		});
 	}
 
+	@Test
+	void searchMovieNoResult() {
+		JavalinTest.test(app, (server, client) -> {
+
+			var movieCreated = TypeConversion.toMovieInfoResponse(client.post(
+					"/movie",
+					shawshankRedemption(),
+					HttpHelpers.headers()
+			));
+
+			DbHelpers.esClient().indices().refresh();
+
+			var response = client.get(
+					"/search/movie?q=thiswillnotmatch",
+					HttpHelpers.headers()
+			);
+
+			Assertions.assertEquals(200, response.code());
+			var body = TypeConversion.toMovieSearchResponse(response);
+			Assertions.assertEquals("thiswillnotmatch", body.query());
+			Assertions.assertEquals(0, body.resultCount());
+			Assertions.assertTrue(body.results().isEmpty());
+		});
+	}
+
 	MovieCreationRequest shawshankRedemption() {
 		return MovieCreationRequest
 				.builder()

@@ -110,7 +110,7 @@ public class MovieController {
 			ElasticsearchClient esClient = new ElasticsearchClient(transport);
 
 			esClient.index(i -> i
-					.index("movies")
+					.index(Environment.getEsIndex())
 					.id(String.valueOf(movie.getId()))
 					.document(movie)
 			);
@@ -188,25 +188,13 @@ public class MovieController {
 	public void searchMovie(Context ctx) {
 		String qWords = ctx.queryParam("q");
 
-		RestClient restClient = RestClient
-				.builder(HttpHost.create("http://localhost:9200"))
-				.build();
-
-		ElasticsearchTransport transport = new RestClientTransport(restClient,
-				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
-
-		ElasticsearchClient esClient = new ElasticsearchClient(transport);
-
-		var hits = esClient.search(s -> s
-						.index("movies")
-						.query(q -> q.simpleQueryString(t -> t.query(qWords))), MovieEntity.class)
+		var hits = esClient()
+				.search(s -> s
+						.index(Environment.getEsIndex())
+						.query(q -> q.simpleQueryString(t -> t.query(qWords))),
+						MovieEntity.class)
 				.hits()
 				.hits();
-
-		if (hits.isEmpty()) {
-			ctx.status(HttpStatus.OK);
-			ctx.json(MovieSearchResponse.build(qWords, List.of()));
-		}
 
 		var movies = hits
 				.stream()
@@ -216,5 +204,16 @@ public class MovieController {
 
 		ctx.status(HttpStatus.OK);
 		ctx.json(MovieSearchResponse.build(qWords, movies));
+	}
+
+	private ElasticsearchClient esClient() {
+		RestClient restClient = RestClient
+				.builder(HttpHost.create("http://%s:%s".formatted(Environment.getEsHost(), Environment.getEsPort())))
+				.build();
+
+		ElasticsearchTransport transport = new RestClientTransport(restClient,
+				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
+
+		return new ElasticsearchClient(transport);
 	}
 }

@@ -27,6 +27,7 @@ docker compose up
 - `PG_DB` defaults to `soc_movies_db`
 - `ES_HOST` defaults to `localhost`
 - `ES_PORT` defaults to `9200`
+- `ES_INDEX` defaults to `movies` (for tests, `movies_test`)
 - `SERVER_PORT` defaults to `8818`
 - `API_SECRET` defaults to `no_auth` - this is a value that needs to be passed in every request (a
   placeholder for identifying authenticated clients)

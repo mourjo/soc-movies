@@ -70,7 +70,7 @@ public class DbHelpers {
 
 		esClient().indices().refresh();
 
-		esClient().deleteByQuery(op -> op.index("movies").query(
+		esClient().deleteByQuery(op -> op.index(Environment.getEsIndex()).query(
 				q -> q.match( m -> m.field("slug").query(slug))
 		));
 

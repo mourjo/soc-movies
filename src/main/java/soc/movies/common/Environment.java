@@ -2,6 +2,7 @@ package soc.movies.common;
 
 import static soc.movies.common.Constants.API_SECRET_ENV_VAR;
 import static soc.movies.common.Constants.ES_HOST_ENV_VAR;
+import static soc.movies.common.Constants.ES_INDEX_ENV_VAR;
 import static soc.movies.common.Constants.ES_PORT_ENV_VAR;
 import static soc.movies.common.Constants.PG_DB_ENV_VAR;
 import static soc.movies.common.Constants.PG_HOST_ENV;
@@ -23,6 +24,7 @@ public class Environment {
 	private final String apiSecret;
 	private final String esHost;
 	private final String esPort;
+	private final String esIndex;
 
 	private Environment() {
 		postgresHost = getEnv(PG_HOST_ENV, "localhost");
@@ -32,6 +34,7 @@ public class Environment {
 		apiSecret = getEnv(API_SECRET_ENV_VAR, "no_auth");
 		esHost = getEnv(ES_HOST_ENV_VAR, "localhost");
 		esPort = getEnv(ES_PORT_ENV_VAR, "9200");
+		esIndex = getEnv(ES_INDEX_ENV_VAR, "movies");
 
 		String defaultPort = "8818";
 		int port;
@@ -46,6 +49,10 @@ public class Environment {
 
 	public static String getEsHost() {
 		return getInstance().esHost;
+	}
+
+	public static String getEsIndex() {
+		return getInstance().esIndex;
 	}
 
 	public static String getEsPort() {
