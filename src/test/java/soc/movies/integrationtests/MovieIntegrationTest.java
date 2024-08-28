@@ -3,6 +3,7 @@ package soc.movies.integrationtests;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import java.lang.reflect.Type;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -108,6 +109,33 @@ public class MovieIntegrationTest {
 
 			var response = client.get("/movie/the-shawshank-redemption");
 			Assertions.assertEquals(401, response.code());
+		});
+	}
+
+	@Test
+	void searchMovie() {
+		JavalinTest.test(app, (server, client) -> {
+
+			var movieCreated = TypeConversion.toMovieInfoResponse(client.post(
+					"/movie",
+					shawshankRedemption(),
+					HttpHelpers.headers()
+			));
+
+			DbHelpers.esClient().indices().refresh();
+
+			var response = client.get(
+					"/search/movie?q=redemption",
+					HttpHelpers.headers()
+			);
+
+			Assertions.assertEquals(200, response.code());
+			var body = TypeConversion.toMovieSearchResponse(response);
+			Assertions.assertEquals("redemption", body.query());
+			Assertions.assertEquals(1, body.resultCount());
+			var firstResult = body.results().get(0);
+			Assertions.assertEquals("the-shawshank-redemption", firstResult.slug());
+			Assertions.assertEquals(movieCreated.id(), firstResult.id());
 		});
 	}
 

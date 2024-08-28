@@ -18,7 +18,6 @@ import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Comparator;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.apache.http.HttpHost;
@@ -29,7 +28,6 @@ import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
 import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
-import soc.movies.entities.elasticsearch.MovieDocument;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
 import soc.movies.exceptions.UserAlreadyExistsException;
@@ -201,7 +199,7 @@ public class MovieController {
 
 		var hits = esClient.search(s -> s
 						.index("movies")
-						.query(q -> q.simpleQueryString(t -> t.query(qWords))), MovieDocument.class)
+						.query(q -> q.simpleQueryString(t -> t.query(qWords))), MovieEntity.class)
 				.hits()
 				.hits();
 
@@ -213,7 +211,7 @@ public class MovieController {
 		var movies = hits
 				.stream()
 				.sorted((o1, o2) -> o2.score().compareTo(o1.score()))
-				.map(hit -> MovieEntity.fromDocument(hit.id(), hit.source()))
+				.map(Hit::source)
 				.toList();
 
 		ctx.status(HttpStatus.OK);

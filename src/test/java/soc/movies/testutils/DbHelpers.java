@@ -1,11 +1,18 @@
 package soc.movies.testutils;
 
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import io.javalin.json.JavalinJackson;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.SneakyThrows;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
@@ -24,6 +31,17 @@ public class DbHelpers {
 		String username = Environment.getPostgresUser();
 		String connectionString = "jdbc:postgresql://%s:%s/%s".formatted(host, port, database);
 		return DriverManager.getConnection(connectionString, username, null);
+	}
+
+	public static ElasticsearchClient esClient() {
+		RestClient restClient = RestClient
+				.builder(HttpHost.create("http://localhost:9200"))
+				.build();
+
+		ElasticsearchTransport transport = new RestClientTransport(restClient,
+				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
+
+		return new ElasticsearchClient(transport);
 	}
 
 	@SneakyThrows
@@ -49,6 +67,14 @@ public class DbHelpers {
 					.where(MovieEntity.slugField().eq(slug))
 					.execute();
 		}
+
+		esClient().indices().refresh();
+
+		esClient().deleteByQuery(op -> op.index("movies").query(
+				q -> q.match( m -> m.field("slug").query(slug))
+		));
+
+		esClient().indices().refresh();
 	}
 
 }

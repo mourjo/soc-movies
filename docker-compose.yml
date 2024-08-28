@@ -45,10 +45,25 @@ services:
             "settings": {"number_of_shards": 1, "number_of_replicas": 0},
             "mappings": {
               "properties": {
+                "id": {"type": "keyword"},
                 "name": { "type": "text" },
                 "description": { "type": "text" },
-                "tags" : { "type": "keyword" },
-                "rating" : { "type": "double" },
+                "tags" : { "type": "text" },
+                "avg_rating" : { "type": "double" },
+                "language" : { "type": "keyword" },
+                "released_year" : { "type": "date", "format": "yyyy" }
+              }
+            }
+          }' && curl -s -X PUT "http://elasticsearch:9200/movies_test" -H "Content-Type: application/json" -d'
+          {
+            "settings": {"number_of_shards": 1, "number_of_replicas": 0},
+            "mappings": {
+              "properties": {
+                "id": {"type": "keyword"},
+                "name": { "type": "text" },
+                "description": { "type": "text" },
+                "tags" : { "type": "text" },
+                "avg_rating" : { "type": "double" },
                 "language" : { "type": "keyword" },
                 "released_year" : { "type": "date", "format": "yyyy" }
               }

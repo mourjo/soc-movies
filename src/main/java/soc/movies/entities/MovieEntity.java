@@ -8,12 +8,11 @@ import java.time.OffsetDateTime;
 import org.jooq.Field;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.impl.DSL;
-import soc.movies.entities.elasticsearch.MovieDocument;
 
 @Entity(name = "movies")
 public class MovieEntity {
 
-	@JsonIgnore
+	@JsonProperty("id")
 	@Column(name = "id")
 	long id;
 
@@ -32,6 +31,10 @@ public class MovieEntity {
 	@JsonProperty("released_year")
 	@Column(name = "released_year")
 	int releasedYear;
+
+	@JsonProperty("avg_rating")
+	@Column(name = "avg_rating")
+	double rating;
 
 	@JsonProperty("language")
 	@Column(name = "lang")
@@ -87,19 +90,6 @@ public class MovieEntity {
 	public static SelectFieldOrAsterisk[] asterisk() {
 		return new SelectFieldOrAsterisk[]{idField(), createdAtField(), slugField(),
 				descriptionField(), releasedYearField(), languageField(), tagsField(), nameField()};
-	}
-
-	public static MovieEntity fromDocument(String id, MovieDocument document) {
-		var movie = new MovieEntity();
-		movie.setCreatedAt(document.createdAt());
-		movie.setId(Long.parseLong(id));
-		movie.setName(document.name());
-		movie.setDescription(document.description());
-		movie.setLanguage(document.language());
-		movie.setReleasedYear(document.releasedYear());
-		movie.setSlug(document.slug());
-		movie.setTags(String.join(",", document.tags()));
-		return movie;
 	}
 
 	public long getId() {

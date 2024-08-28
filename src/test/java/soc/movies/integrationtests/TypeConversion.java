@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import okhttp3.Response;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieInfoResponse;
+import soc.movies.web.dto.MovieSearchResponse;
 import soc.movies.web.dto.UserInfoResponse;
 
 public class TypeConversion {
@@ -37,6 +38,13 @@ public class TypeConversion {
 	@SneakyThrows
 	public static ErrorResponse toErrorResponse(Response response) {
 		var typeRef = new TypeReference<ErrorResponse>() {
+		};
+		return jackson.fromJsonString(response.body().string(), typeRef.getType());
+	}
+
+	@SneakyThrows
+	public static MovieSearchResponse toMovieSearchResponse(Response response) {
+		var typeRef = new TypeReference<MovieSearchResponse>() {
 		};
 		return jackson.fromJsonString(response.body().string(), typeRef.getType());
 	}

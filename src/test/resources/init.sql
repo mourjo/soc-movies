@@ -23,6 +23,7 @@ CREATE TABLE movies (
    name TEXT UNIQUE,
    slug TEXT UNIQUE,
    description TEXT,
+   avg_rating NUMERIC(5,2),
    tags TEXT,
    released_year NUMERIC(4),
    lang TEXT,
