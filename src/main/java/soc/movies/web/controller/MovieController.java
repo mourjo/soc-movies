@@ -18,7 +18,6 @@ import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.List;
 import lombok.SneakyThrows;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -190,8 +189,8 @@ public class MovieController {
 
 		var hits = esClient()
 				.search(s -> s
-						.index(Environment.getEsIndex())
-						.query(q -> q.simpleQueryString(t -> t.query(qWords))),
+								.index(Environment.getEsIndex())
+								.query(q -> q.simpleQueryString(t -> t.query(qWords))),
 						MovieEntity.class)
 				.hits()
 				.hits();
@@ -208,7 +207,8 @@ public class MovieController {
 
 	private ElasticsearchClient esClient() {
 		RestClient restClient = RestClient
-				.builder(HttpHost.create("http://%s:%s".formatted(Environment.getEsHost(), Environment.getEsPort())))
+				.builder(HttpHost.create(
+						"http://%s:%s".formatted(Environment.getEsHost(), Environment.getEsPort())))
 				.build();
 
 		ElasticsearchTransport transport = new RestClientTransport(restClient,

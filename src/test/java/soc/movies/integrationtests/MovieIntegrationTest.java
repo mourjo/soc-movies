@@ -3,7 +3,6 @@ package soc.movies.integrationtests;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
-import java.lang.reflect.Type;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
