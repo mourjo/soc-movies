@@ -12,7 +12,6 @@
 - rate movie
 - done - Search movie by random phrases (show name, avg rating, slug)
 
-
 ## Start dependent services
 
 ```bash

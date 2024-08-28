@@ -7,7 +7,7 @@ public class RatingAlreadyExistsException extends MovieException {
 
 	@Override
 	public ErrorResponse buildResponse() {
-		return  ErrorResponse.build("Movie rating from this user already exists");
+		return ErrorResponse.build("Movie rating from this user already exists");
 	}
 
 	@Override

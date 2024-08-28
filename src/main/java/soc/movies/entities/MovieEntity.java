@@ -169,11 +169,11 @@ public class MovieEntity {
 		this.createdAt = createdAt;
 	}
 
-	public void setRating(double rating) {
-		this.rating = rating;
-	}
-
 	public double getRating() {
 		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
 	}
 }

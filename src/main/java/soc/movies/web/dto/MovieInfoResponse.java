@@ -5,7 +5,8 @@ import java.util.List;
 import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
 
-public record MovieInfoResponse(long id, String slug, String name, String rating, String description,
+public record MovieInfoResponse(long id, String slug, String name, String rating,
+								String description,
 								List<String> tags, int releasedYear, String language,
 								String createdAt) {
 

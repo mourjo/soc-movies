@@ -7,7 +7,7 @@ public class InvalidRatingException extends MovieException {
 
 	@Override
 	public ErrorResponse buildResponse() {
-		return  ErrorResponse.build("Rating must be between 0 and 10");
+		return ErrorResponse.build("Rating must be between 0 and 10");
 	}
 
 	@Override

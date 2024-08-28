@@ -35,7 +35,6 @@ import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.MovieNotFoundException;
 import soc.movies.exceptions.RatingAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
-import soc.movies.exceptions.UserAlreadyExistsException;
 import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieCreationRequest;
@@ -105,7 +104,6 @@ public class MovieController {
 			if (movie == null) {
 				throw new MovieAlreadyExistsException();
 			}
-
 
 			esClient().index(i -> i
 					.index(Environment.getEsIndex())
@@ -189,7 +187,7 @@ public class MovieController {
 		String slug = ctx.pathParam("slug");
 		var request = ctx.bodyAsClass(RateMovieRequest.class);
 
-		if (request.rating() > 10 || request.rating() < 0 ) {
+		if (request.rating() > 10 || request.rating() < 0) {
 			throw new InvalidRatingException();
 		}
 
@@ -233,7 +231,6 @@ public class MovieController {
 					)
 					.fetchAnyInto(RatingEntity.class);
 
-
 			BigDecimal avgRating = DSL.using(conn, SQLDialect.POSTGRES)
 					.select(DSL.avg(RatingEntity.ratingField()).as("avg_rating"))
 					.from(RatingEntity.table())
@@ -247,9 +244,6 @@ public class MovieController {
 					.execute();
 
 			movie.setRating(avgRating.doubleValue());
-
-
-
 
 			esClient().index(i -> i
 					.index(Environment.getEsIndex())
