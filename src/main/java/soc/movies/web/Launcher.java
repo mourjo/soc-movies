@@ -24,6 +24,7 @@ public class Launcher {
 				.get("/user/{username}", userController::retrieveUser)
 				.post("/user", userController::createUser)
 				.post("/movie", movieController::createMovie)
+				.post("/movie/{slug}/rate", movieController::rateMovie)
 				.get("/movie/{slug}", movieController::retrieveMovie)
 				.get("/search/movie", movieController::searchMovie)
 				.get("/", ctx -> ctx.json(Map.of("message", "Hello world!")))

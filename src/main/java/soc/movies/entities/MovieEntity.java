@@ -83,13 +83,26 @@ public class MovieEntity {
 		return DSL.field("lang", String.class);
 	}
 
+	public static Field<Double> ratingField() {
+		return DSL.field("avg_rating", Double.class);
+	}
+
 	public static org.jooq.Table<org.jooq.Record> table() {
 		return DSL.table("movies");
 	}
 
 	public static SelectFieldOrAsterisk[] asterisk() {
-		return new SelectFieldOrAsterisk[]{idField(), createdAtField(), slugField(),
-				descriptionField(), releasedYearField(), languageField(), tagsField(), nameField()};
+		return new SelectFieldOrAsterisk[]{
+				idField(),
+				createdAtField(),
+				slugField(),
+				descriptionField(),
+				releasedYearField(),
+				languageField(),
+				tagsField(),
+				nameField(),
+				ratingField()
+		};
 	}
 
 	public long getId() {
@@ -156,4 +169,11 @@ public class MovieEntity {
 		this.createdAt = createdAt;
 	}
 
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
+	public double getRating() {
+		return rating;
+	}
 }

@@ -10,8 +10,8 @@
 - done - Get movie by slug
 - done - Get user by user-id
 - rate movie
-- Search movie by random phrases (show name, avg rating, slug)
-- Search by tag (show name, avg rating, slug)
+- done - Search movie by random phrases (show name, avg rating, slug)
+
 
 ## Start dependent services
 

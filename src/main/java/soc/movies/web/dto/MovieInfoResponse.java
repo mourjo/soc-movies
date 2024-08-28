@@ -5,7 +5,7 @@ import java.util.List;
 import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
 
-public record MovieInfoResponse(long id, String slug, String name, String description,
+public record MovieInfoResponse(long id, String slug, String name, String rating, String description,
 								List<String> tags, int releasedYear, String language,
 								String createdAt) {
 
@@ -14,6 +14,7 @@ public record MovieInfoResponse(long id, String slug, String name, String descri
 				entity.getId(),
 				entity.getSlug(),
 				entity.getName(),
+				"%.2f".formatted(entity.getRating()),
 				entity.getDescription(),
 				Arrays.stream(entity.getTags().split(",")).toList(),
 				entity.getReleasedYear(),
