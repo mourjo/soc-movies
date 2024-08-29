@@ -7,7 +7,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.jooq.Constants" level="off"/>
+  <logger level="off" name="org.jooq.Constants"/>
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>
   </root>

@@ -3,14 +3,9 @@ package soc.movies.web.controller;
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
 import static soc.movies.common.Elasticsearch.getESClient;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
-import io.javalin.json.JavalinJackson;
 import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
@@ -21,8 +16,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import lombok.SneakyThrows;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.jooq.SQLDialect;
 import org.jooq.exception.IntegrityConstraintViolationException;
 import org.jooq.impl.DSL;
@@ -248,10 +241,10 @@ public class MovieController {
 
 			getESClient()
 					.index(i -> i
-					.index(Environment.getEsIndex())
-					.id(String.valueOf(movie.getId()))
-					.document(movie)
-			);
+							.index(Environment.getEsIndex())
+							.id(String.valueOf(movie.getId()))
+							.document(movie)
+					);
 
 			ctx.json(MovieInfoResponse.build(movie));
 			ctx.status(HttpStatus.OK);

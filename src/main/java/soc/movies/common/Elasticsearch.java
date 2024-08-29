@@ -9,6 +9,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
 public class Elasticsearch {
+
 	private static Elasticsearch es = null;
 	private final ElasticsearchClient esclient;
 
