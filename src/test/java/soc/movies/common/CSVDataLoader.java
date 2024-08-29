@@ -1,4 +1,4 @@
-package soc.movies.web;
+package soc.movies.common;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.MappingIterator;
