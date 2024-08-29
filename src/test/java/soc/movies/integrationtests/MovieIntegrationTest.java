@@ -12,6 +12,8 @@ import soc.movies.testutils.DbHelpers;
 import soc.movies.testutils.HttpHelpers;
 import soc.movies.web.Launcher;
 import soc.movies.web.dto.MovieCreationRequest;
+import soc.movies.web.dto.RateMovieRequest;
+import soc.movies.web.dto.UserCreationRequest;
 
 public class MovieIntegrationTest {
 
@@ -21,6 +23,7 @@ public class MovieIntegrationTest {
 	@BeforeEach
 	void cleanUp() {
 		DbHelpers.truncate();
+		DbHelpers.refreshES();
 	}
 
 	@Test
@@ -98,6 +101,104 @@ public class MovieIntegrationTest {
 	}
 
 	@Test
+	void rateNonExistentMovie() {
+		JavalinTest.test(app, (server, client) -> {
+			var response = client.post(
+					"/movie/the-conjuring/rate",
+					new RateMovieRequest("alice", 8.2),
+					HttpHelpers.headers()
+			);
+			Assertions.assertEquals(404, response.code());
+		});
+	}
+
+	@Test
+	void ratingByNonExistentUser() {
+		JavalinTest.test(app, (server, client) -> {
+			Assertions.assertEquals(201,
+					client.post(
+							"/movie",
+							jurassicPark(),
+							HttpHelpers.headers()
+					).code()
+			);
+
+			var response = client.post(
+					"/movie/the-conjuring/rate",
+					new RateMovieRequest("dennis", 8.2),
+					HttpHelpers.headers()
+			);
+			Assertions.assertEquals(404, response.code());
+		});
+	}
+
+	@Test
+	void unauthenticatedRating() {
+		JavalinTest.test(app, (server, client) -> {
+			client.post(
+					"/movie",
+					homeAlone(),
+					HttpHelpers.headers()
+			);
+
+			client.post(
+					"/user",
+					new UserCreationRequest("alice"),
+					HttpHelpers.headers()
+			);
+
+			Assertions.assertEquals(
+					401,
+					client.post(
+							"/movie/home-alone/rate",
+							new RateMovieRequest("alice", 8.2)
+					).code()
+			);
+
+			Assertions.assertEquals(
+					200,
+					client.post(
+							"/movie/home-alone/rate",
+							new RateMovieRequest("alice", 8.2),
+							HttpHelpers.headers()
+					).code()
+			);
+		});
+	}
+
+	@Test
+	void duplicateRating() {
+		JavalinTest.test(app, (server, client) -> {
+			client.post(
+					"/movie",
+					jurassicPark(),
+					HttpHelpers.headers()
+			);
+
+			client.post(
+					"/user",
+					new UserCreationRequest("alice"),
+					HttpHelpers.headers()
+			);
+
+			var firstRatingResponse = client.post(
+					"/movie/jurassic-park/rate",
+					new RateMovieRequest("alice", 8.2),
+					HttpHelpers.headers()
+			);
+
+			Assertions.assertEquals(200, firstRatingResponse.code());
+
+			var secondRatingResponse = client.post(
+					"/movie/jurassic-park/rate",
+					new RateMovieRequest("alice", 8.2),
+					HttpHelpers.headers()
+			);
+			Assertions.assertEquals(409, secondRatingResponse.code());
+		});
+	}
+
+	@Test
 	void unauthenticatedFetchMovie() {
 		JavalinTest.test(app, (server, client) -> {
 			client.post(
@@ -114,13 +215,13 @@ public class MovieIntegrationTest {
 	@Test
 	void searchMovie() {
 		JavalinTest.test(app, (server, client) -> {
-
-			var movieCreated = TypeConversion.toMovieInfoResponse(client.post(
-					"/movie",
-					shawshankRedemption(),
-					HttpHelpers.headers()
-			));
-
+			for (var movie : movies()) {
+				client.post(
+						"/movie",
+						movie,
+						HttpHelpers.headers()
+				);
+			}
 			DbHelpers.refreshES();
 
 			var response = client.get(
@@ -134,46 +235,137 @@ public class MovieIntegrationTest {
 			Assertions.assertEquals(1, body.resultCount());
 			var firstResult = body.results().get(0);
 			Assertions.assertEquals("the-shawshank-redemption", firstResult.slug());
-			Assertions.assertEquals(movieCreated.id(), firstResult.id());
+			Assertions.assertNotNull(DbHelpers.getMovieById(firstResult.id()));
 		});
 	}
 
 	@Test
 	void rateMovie() {
 		JavalinTest.test(app, (server, client) -> {
+			for (var creationRequest : movies()) {
+				client.post(
+						"/movie",
+						creationRequest,
+						HttpHelpers.headers()
+				);
+			}
 
-			var movieCreated = TypeConversion.toMovieInfoResponse(client.post(
-					"/movie",
-					shawshankRedemption(),
-					HttpHelpers.headers()
-			));
+			for (String user : List.of("alice", "bob", "clive")) {
+				client.post(
+						"/user",
+						new UserCreationRequest(user),
+						HttpHelpers.headers()
+				);
+			}
 
 			DbHelpers.refreshES();
 
-			var response = client.get(
-					"/search/movie?q=redemption",
+			var aliceRateResponse = client.post(
+					"/movie/jurassic-park/rate",
+					new RateMovieRequest("alice", 8.2),
 					HttpHelpers.headers()
 			);
 
-			Assertions.assertEquals(200, response.code());
-			var body = TypeConversion.toMovieSearchResponse(response);
-			Assertions.assertEquals("redemption", body.query());
-			Assertions.assertEquals(1, body.resultCount());
-			var firstResult = body.results().get(0);
-			Assertions.assertEquals("the-shawshank-redemption", firstResult.slug());
-			Assertions.assertEquals(movieCreated.id(), firstResult.id());
+			var bobRateResponse = client.post(
+					"/movie/jurassic-park/rate",
+					new RateMovieRequest("bob", 8.0),
+					HttpHelpers.headers()
+			);
+
+			var cliveRateResponse = client.post(
+					"/movie/jurassic-park/rate",
+					new RateMovieRequest("clive", 7.2),
+					HttpHelpers.headers()
+			);
+
+			Assertions.assertEquals(200, aliceRateResponse.code());
+			Assertions.assertEquals(200, bobRateResponse.code());
+			Assertions.assertEquals(200, cliveRateResponse.code());
+
+			var aliceResponseBody = TypeConversion.toMovieInfoResponse(aliceRateResponse);
+			var bobResponseBody = TypeConversion.toMovieInfoResponse(bobRateResponse);
+			var cliveResponseBody = TypeConversion.toMovieInfoResponse(cliveRateResponse);
+
+			Assertions.assertEquals("jurassic-park", aliceResponseBody.slug());
+			Assertions.assertEquals("jurassic-park", bobResponseBody.slug());
+			Assertions.assertEquals("jurassic-park", cliveResponseBody.slug());
+
+			Assertions.assertEquals("8.20", aliceResponseBody.rating());
+			Assertions.assertEquals("8.10", bobResponseBody.rating());
+			Assertions.assertEquals("7.80", cliveResponseBody.rating());
+
+			DbHelpers.refreshES();
+
+			var jurassicParkSearchResults = TypeConversion.toMovieSearchResponse(
+					client.get(
+							"/search/movie?q=jurassic",
+							HttpHelpers.headers()
+					)).results();
+
+			Assertions.assertEquals(1, jurassicParkSearchResults.size());
+			jurassicParkSearchResults.forEach(
+					r -> Assertions.assertEquals("7.80", r.rating())
+			);
+
+			var homeAloneSearchResults = TypeConversion.toMovieSearchResponse(
+					client.get(
+							"/search/movie?q=kevin",
+							HttpHelpers.headers()
+					)).results();
+
+			Assertions.assertEquals(2, homeAloneSearchResults.size());
+			homeAloneSearchResults.forEach(
+					r -> Assertions.assertEquals("0.00", r.rating())
+			);
+
+		});
+	}
+
+	@Test
+	void rateMovieWithInvalidNumbers() {
+		JavalinTest.test(app, (server, client) -> {
+			client.post(
+					"/movie",
+					jurassicPark(),
+					HttpHelpers.headers()
+			);
+
+			client.post(
+					"/user",
+					new UserCreationRequest("alice"),
+					HttpHelpers.headers()
+			);
+
+			DbHelpers.refreshES();
+
+			Assertions.assertEquals(
+					400,
+					client.post(
+							"/movie/jurassic-park/rate",
+							new RateMovieRequest("alice", 18.2),
+							HttpHelpers.headers()
+					).code()
+			);
+
+			Assertions.assertEquals(
+					400,
+					client.post(
+							"/movie/jurassic-park/rate",
+							new RateMovieRequest("alice", -2),
+							HttpHelpers.headers()
+					).code()
+			);
 		});
 	}
 
 	@Test
 	void searchMovieNoResult() {
 		JavalinTest.test(app, (server, client) -> {
-
-			TypeConversion.toMovieInfoResponse(client.post(
+			client.post(
 					"/movie",
 					shawshankRedemption(),
 					HttpHelpers.headers()
-			));
+			);
 
 			DbHelpers.refreshES();
 
@@ -204,5 +396,59 @@ public class MovieIntegrationTest {
 				.releasedYear(1970)
 				.build();
 	}
+
+	MovieCreationRequest jurassicPark() {
+		return MovieCreationRequest
+				.builder()
+				.name("Jurassic Park")
+				.description("""
+						An industrialist invites some experts to visit his theme park of cloned
+						dinosaurs. After a power failure, the creatures run loose, putting everyone's
+						lives, including his grandchildren's, in danger.
+						""")
+				.tags(List.of("jungle", "dinosaur", "action", "adventure"))
+				.language("English")
+				.releasedYear(1993)
+				.build();
+	}
+
+	MovieCreationRequest homeAlone() {
+		return MovieCreationRequest
+				.builder()
+				.name("Home Alone")
+				.description("""
+						An eight-year-old troublemaker Kevin mistakenly left home alone, must defend
+						his home against a pair of burglars on Christmas Eve.
+						""")
+				.tags(List.of("holiday", "comedy"))
+				.language("English")
+				.releasedYear(1990)
+				.build();
+	}
+
+	MovieCreationRequest homeAlone2() {
+		return MovieCreationRequest
+				.builder()
+				.name("Home Alone 2: Lost in New York")
+				.description("""
+						Kevin accidentally boards a flight to New York City and gets separated from
+						his family who are on their way to Miami. He then bumps into two of his old
+						enemies, who plan to rob a toy store.
+						""")
+				.tags(List.of("holiday", "comedy"))
+				.language("English")
+				.releasedYear(1990)
+				.build();
+	}
+
+	List<MovieCreationRequest> movies() {
+		return List.of(
+				shawshankRedemption(),
+				homeAlone(),
+				jurassicPark(),
+				homeAlone2()
+		);
+	}
+
 }
 

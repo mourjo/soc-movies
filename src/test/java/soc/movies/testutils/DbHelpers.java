@@ -49,6 +49,27 @@ public class DbHelpers {
 	}
 
 	@SneakyThrows
+	public static UserEntity getUserById(long id) {
+		try (Connection conn = getConnection()) {
+			return DSL.using(conn, SQLDialect.POSTGRES)
+					.select(UserEntity.asterisk())
+					.where(UserEntity.idField().eq(id))
+					.fetchAnyInto(UserEntity.class);
+		}
+	}
+
+	@SneakyThrows
+	public static MovieEntity getMovieById(long id) {
+		try (Connection conn = getConnection()) {
+			return DSL.using(conn, SQLDialect.POSTGRES)
+					.select(MovieEntity.asterisk())
+					.from(MovieEntity.table())
+					.where(MovieEntity.idField().eq(id))
+					.fetchAnyInto(MovieEntity.class);
+		}
+	}
+
+	@SneakyThrows
 	public static void truncate() {
 		try (Connection conn = getConnection()) {
 			DSL.using(conn, SQLDialect.POSTGRES)
