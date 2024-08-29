@@ -11,7 +11,7 @@ import org.elasticsearch.client.RestClient;
 public class Elasticsearch {
 
 	private static Elasticsearch es = null;
-	private final ElasticsearchClient esclient;
+	private final ElasticsearchClient client;
 
 	private Elasticsearch() {
 		RestClient restClient = RestClient
@@ -22,18 +22,20 @@ public class Elasticsearch {
 		ElasticsearchTransport transport = new RestClientTransport(restClient,
 				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
 
-		esclient = new ElasticsearchClient(transport);
+		client = new ElasticsearchClient(transport);
 	}
 
 	public static Elasticsearch getInstance() {
 		if (es == null) {
-			es = new Elasticsearch();
+			synchronized (Elasticsearch.class) {
+				es = new Elasticsearch();
+			}
 		}
 		return es;
 	}
 
 	public static ElasticsearchClient getESClient() {
-		return getInstance().esclient;
+		return getInstance().client;
 	}
 
 }
