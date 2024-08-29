@@ -1,21 +1,15 @@
 package soc.movies.testutils;
 
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
-import io.javalin.json.JavalinJackson;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.SneakyThrows;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import soc.movies.common.Elasticsearch;
 import soc.movies.common.Environment;
 import soc.movies.entities.MovieEntity;
 import soc.movies.entities.UserEntity;
@@ -34,15 +28,9 @@ public class DbHelpers {
 		return DriverManager.getConnection(connectionString, username, null);
 	}
 
-	public static ElasticsearchClient esClient() {
-		RestClient restClient = RestClient
-				.builder(HttpHost.create("http://localhost:9200"))
-				.build();
-
-		ElasticsearchTransport transport = new RestClientTransport(restClient,
-				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
-
-		return new ElasticsearchClient(transport);
+	@SneakyThrows
+	public static void refreshES() {
+		Elasticsearch.getESClient().indices().refresh();
 	}
 
 	@SneakyThrows
@@ -61,21 +49,24 @@ public class DbHelpers {
 	}
 
 	@SneakyThrows
-	public static void deleteMovies() {
+	public static void truncate() {
 		try (Connection conn = getConnection()) {
+			DSL.using(conn, SQLDialect.POSTGRES)
+					.truncate(UserEntity.table())
+					.cascade()
+					.execute();
+
 			DSL.using(conn, SQLDialect.POSTGRES)
 					.truncate(MovieEntity.table())
 					.cascade()
 					.execute();
 		}
 
-		esClient().indices().refresh();
+		Elasticsearch.getESClient()
+				.deleteByQuery(op -> op.index(Environment.getEsIndex())
+						.query(q -> q.matchAll(new MatchAllQuery.Builder().build())));
 
-		esClient().deleteByQuery(op -> op.index(Environment.getEsIndex()).query(
-				q -> q.matchAll(new MatchAllQuery.Builder().build())
-		));
-
-		esClient().indices().refresh();
+		refreshES();
 	}
 
 }

@@ -20,7 +20,7 @@ public class MovieIntegrationTest {
 	@AfterEach
 	@BeforeEach
 	void cleanUp() {
-		DbHelpers.deleteMovies();
+		DbHelpers.truncate();
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class MovieIntegrationTest {
 					HttpHelpers.headers()
 			));
 
-			DbHelpers.esClient().indices().refresh();
+			DbHelpers.refreshES();
 
 			var response = client.get(
 					"/search/movie?q=redemption",
@@ -148,7 +148,7 @@ public class MovieIntegrationTest {
 					HttpHelpers.headers()
 			));
 
-			DbHelpers.esClient().indices().refresh();
+			DbHelpers.refreshES();
 
 			var response = client.get(
 					"/search/movie?q=redemption",
@@ -169,13 +169,13 @@ public class MovieIntegrationTest {
 	void searchMovieNoResult() {
 		JavalinTest.test(app, (server, client) -> {
 
-			var movieCreated = TypeConversion.toMovieInfoResponse(client.post(
+			TypeConversion.toMovieInfoResponse(client.post(
 					"/movie",
 					shawshankRedemption(),
 					HttpHelpers.headers()
 			));
 
-			DbHelpers.esClient().indices().refresh();
+			DbHelpers.refreshES();
 
 			var response = client.get(
 					"/search/movie?q=thiswillnotmatch",
