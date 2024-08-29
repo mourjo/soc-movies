@@ -98,8 +98,8 @@ public class SampleMoviesDataGenerator {
 					if (random.nextInt(100) < RATING_PROBABILITY) {
 						double rating;
 						if (random.nextInt(100) < BAD_RATING_PROBABILITY) {
-							rating = random.nextDouble(BAD_RATING_VARIANCE) + (10
-									- BAD_RATING_VARIANCE);
+							rating = random.nextDouble(BAD_RATING_VARIANCE)
+									+ (10 - BAD_RATING_VARIANCE);
 						} else {
 							rating = random.nextDouble(RATING_VARIANCE) + (10 - RATING_VARIANCE);
 						}
@@ -114,10 +114,8 @@ public class SampleMoviesDataGenerator {
 
 	@JsonPropertyOrder({"name", "releasedYear", "description", "rating", "tags"})
 	private record MovieRow(
-
 			String name,
 			String releasedYear,
-
 			String description,
 			String rating,
 			String tags
