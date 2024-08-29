@@ -9,7 +9,7 @@
 - done - Movie registration (default rating is 10) - return slug
 - done - Get movie by slug
 - done - Get user by user-id
-- rate movie
+- done - rate movie
 - done - Search movie by random phrases (show name, avg rating, slug)
 
 ## Start dependent services
@@ -60,17 +60,12 @@ http://localhost:8818/swagger-ui
 API_SECRET=humpty_dumpty PG_DB=soc_wallet_test_db mvn test
 ```
 
-## Movies dataset
+## Load sample movies dataset
 
-Taken
-from [here](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows),
-Use the following duckdb command:
+While the server is running, run the following command to create some movies with ratings:
 
 ```bash
-duckdb -c "copy (select Series_Title as name, Released_Year as released_year, \
-overview as description, Meta_score as rating, genre as tags \
-From read_csv('/tmp/imdb_top_1000.csv',  ignore_errors=true)) \
-to '/tmp/soc_movies.csv' ;"
+SERVER_PORT=8818 API_SECRET=humpty_dumpty  sh src/test/resources/create_soc_movies.sh
 ```
 
 ## Elasticsearch Querying

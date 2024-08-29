@@ -36,10 +36,10 @@ public class CSVDataLoader {
 
 	private static final Random random = new Random();
 	private static final String USER_CREATION_CURL = """
-			curl -X 'POST' -H 'AUTH_TOKEN: humpty_dumpty' -H 'Content-Type: application/json' localhost:8818/user -d '{"username":"%s"}';
+			curl -X 'POST' -H "AUTH_TOKEN: $API_SECRET" -H 'Content-Type: application/json' localhost:$SERVER_PORT/user -d '{"username":"%s"}';
 			""";
 	private static final String MOVIE_CREATION_CURL = """
-			curl -X 'POST' -H 'AUTH_TOKEN: humpty_dumpty' -H 'Content-Type: application/json' localhost:8818/movie -d '%s';
+			curl -X 'POST' -H "AUTH_TOKEN: $API_SECRET" -H 'Content-Type: application/json' localhost:$SERVER_PORT/movie -d '%s';
 			""";
 
 	private static final String HASH_BANG = "#!/bin/sh";
@@ -47,7 +47,7 @@ public class CSVDataLoader {
 	private static final String SLEEP = "";
 
 	private static final String RATING_CURL = """
-			curl -X 'POST' -H 'AUTH_TOKEN: humpty_dumpty' -H 'Content-Type: application/json' localhost:8818/movie/%s/rate -d '{"username":"%s", "rating": %.2f}';
+			curl -X 'POST' -H "AUTH_TOKEN: $API_SECRET" -H 'Content-Type: application/json' localhost:$SERVER_PORT/movie/%s/rate -d '{"username":"%s", "rating": %.2f}';
 			""";
 
 	private static final String ECHO = "echo;";
