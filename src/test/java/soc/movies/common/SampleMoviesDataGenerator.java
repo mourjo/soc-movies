@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import soc.movies.web.dto.MovieCreationRequest;
 
 @Slf4j
-public class CSVDataLoader {
+public class SampleMoviesDataGenerator {
 
 	private static final int NUM_MOVIES = 30;
 
@@ -109,8 +109,6 @@ public class CSVDataLoader {
 					}
 				}
 			}
-
-
 		}
 	}
 
@@ -125,7 +123,6 @@ public class CSVDataLoader {
 			String tags
 
 	) {
-
 		MovieCreationRequest toMovieCreationRequest() {
 			return new MovieCreationRequest(
 					name,
@@ -134,8 +131,6 @@ public class CSVDataLoader {
 					Integer.parseInt(releasedYear),
 					"English"
 			);
-
 		}
-
 	}
 }
