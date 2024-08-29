@@ -68,5 +68,11 @@ SERVER_PORT=8818 API_SECRET=humpty_dumpty  sh src/test/resources/create_soc_movi
 ## Elasticsearch Querying
 
 ```bash
-curl -H'Content-Type: application/json' localhost:9200/movies/_search -d'{"query":{"match":{"name":"show"}}}' | jq .
+curl -H'Content-Type: application/json' localhost:9200/movies/_search -d'{
+  "query": {
+    "query_string": {
+      "query": "family"
+    }
+  }
+}'
 ```
