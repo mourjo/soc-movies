@@ -121,6 +121,7 @@ public class SampleMoviesDataGenerator {
 			String tags
 
 	) {
+
 		MovieCreationRequest toMovieCreationRequest() {
 			return new MovieCreationRequest(
 					name,

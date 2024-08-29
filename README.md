@@ -4,13 +4,10 @@
 
 ## Scope
 
-- done - User registration (unique on username)
-- done - One user can review one movie at most once
-- done - Movie registration (default rating is 10) - return slug
-- done - Get movie by slug
-- done - Get user by user-id
-- done - rate movie
-- done - Search movie by random phrases (show name, avg rating, slug)
+- User registration with unique username
+- Movie registration with unique name
+- Users can rate movies between 0 and 10
+- Search for a movie by phrase
 
 ## Start dependent services
 
