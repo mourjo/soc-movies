@@ -1,6 +1,7 @@
 package soc.movies.web.controller;
 
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
+import static soc.movies.common.Elasticsearch.getESClient;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -105,7 +106,7 @@ public class MovieController {
 				throw new MovieAlreadyExistsException();
 			}
 
-			esClient().index(i -> i
+			getESClient().index(i -> i
 					.index(Environment.getEsIndex())
 					.id(String.valueOf(movie.getId()))
 					.document(movie)
@@ -245,7 +246,8 @@ public class MovieController {
 
 			movie.setRating(avgRating.doubleValue());
 
-			esClient().index(i -> i
+			getESClient()
+					.index(i -> i
 					.index(Environment.getEsIndex())
 					.id(String.valueOf(movie.getId()))
 					.document(movie)
@@ -281,7 +283,7 @@ public class MovieController {
 	public void searchMovie(Context ctx) {
 		String qWords = ctx.queryParam("q");
 
-		var hits = esClient()
+		var hits = getESClient()
 				.search(s -> s
 								.index(Environment.getEsIndex())
 								.query(q -> q.simpleQueryString(t -> t.query(qWords))),
@@ -301,17 +303,5 @@ public class MovieController {
 
 		ctx.status(HttpStatus.OK);
 		ctx.json(MovieSearchResponse.build(qWords, movies));
-	}
-
-	private ElasticsearchClient esClient() {
-		RestClient restClient = RestClient
-				.builder(HttpHost.create(
-						"http://%s:%s".formatted(Environment.getEsHost(), Environment.getEsPort())))
-				.build();
-
-		ElasticsearchTransport transport = new RestClientTransport(restClient,
-				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
-
-		return new ElasticsearchClient(transport);
 	}
 }

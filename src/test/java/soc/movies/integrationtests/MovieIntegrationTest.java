@@ -139,6 +139,33 @@ public class MovieIntegrationTest {
 	}
 
 	@Test
+	void rateMovie() {
+		JavalinTest.test(app, (server, client) -> {
+
+			var movieCreated = TypeConversion.toMovieInfoResponse(client.post(
+					"/movie",
+					shawshankRedemption(),
+					HttpHelpers.headers()
+			));
+
+			DbHelpers.esClient().indices().refresh();
+
+			var response = client.get(
+					"/search/movie?q=redemption",
+					HttpHelpers.headers()
+			);
+
+			Assertions.assertEquals(200, response.code());
+			var body = TypeConversion.toMovieSearchResponse(response);
+			Assertions.assertEquals("redemption", body.query());
+			Assertions.assertEquals(1, body.resultCount());
+			var firstResult = body.results().get(0);
+			Assertions.assertEquals("the-shawshank-redemption", firstResult.slug());
+			Assertions.assertEquals(movieCreated.id(), firstResult.id());
+		});
+	}
+
+	@Test
 	void searchMovieNoResult() {
 		JavalinTest.test(app, (server, client) -> {
 
