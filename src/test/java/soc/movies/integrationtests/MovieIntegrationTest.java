@@ -20,7 +20,7 @@ public class MovieIntegrationTest {
 	@AfterEach
 	@BeforeEach
 	void cleanUp() {
-		DbHelpers.deleteMovie("the-shawshank-redemption");
+		DbHelpers.deleteMovies();
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package soc.movies.testutils;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
@@ -60,18 +61,18 @@ public class DbHelpers {
 	}
 
 	@SneakyThrows
-	public static void deleteMovie(String slug) {
+	public static void deleteMovies() {
 		try (Connection conn = getConnection()) {
 			DSL.using(conn, SQLDialect.POSTGRES)
-					.delete(MovieEntity.table())
-					.where(MovieEntity.slugField().eq(slug))
+					.truncate(MovieEntity.table())
+					.cascade()
 					.execute();
 		}
 
 		esClient().indices().refresh();
 
 		esClient().deleteByQuery(op -> op.index(Environment.getEsIndex()).query(
-				q -> q.match(m -> m.field("slug").query(slug))
+				q -> q.matchAll(new MatchAllQuery.Builder().build())
 		));
 
 		esClient().indices().refresh();
