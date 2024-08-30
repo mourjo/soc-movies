@@ -43,7 +43,7 @@ API_SECRET=humpty_dumpty java -cp target/soc-movies-1.0-SNAPSHOT.jar soc.movies.
 ## Compiling and running in one step
 
 ```bash
-API_SECRET=humpty_dumpty ./mvnw clean compile exec:java  -Dexec.mainClass="soc.wallet.web.Launcher"
+API_SECRET=humpty_dumpty ./mvnw clean compile exec:java  -Dexec.mainClass="soc.movies.web.Launcher"
 ```
 
 ## Accessing the API
@@ -54,7 +54,7 @@ http://localhost:8818/swagger-ui
 ## Running tests
 
 ```bash
-API_SECRET=humpty_dumpty PG_DB=soc_wallet_test_db mvn test
+API_SECRET=humpty_dumpty PG_DB=soc_movies_test_db mvn test
 ```
 
 ## Load sample movies dataset

@@ -84,7 +84,7 @@ public class DbHelpers {
 		}
 
 		refreshES();
-		
+
 		Elasticsearch.getESClient()
 				.deleteByQuery(op -> op.index(Environment.getEsIndex())
 						.query(q -> q.matchAll(new MatchAllQuery.Builder().build())));
