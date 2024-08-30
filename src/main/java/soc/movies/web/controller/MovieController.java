@@ -30,6 +30,7 @@ import soc.movies.exceptions.MovieNotFoundException;
 import soc.movies.exceptions.RatingAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
 import soc.movies.exceptions.UserNotFoundException;
+import soc.movies.services.MovieService;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieCreationRequest;
 import soc.movies.web.dto.MovieInfoResponse;
@@ -38,6 +39,13 @@ import soc.movies.web.dto.RateMovieRequest;
 import soc.movies.web.dto.UserInfoResponse;
 
 public class MovieController {
+
+	private final MovieService movieService;
+
+	public MovieController() {
+		this.movieService = new MovieService();
+	}
+
 
 	@SneakyThrows
 	private Connection getConnection() {
@@ -73,43 +81,9 @@ public class MovieController {
 			throw new UnauthenticatedRequest();
 		}
 		var request = ctx.bodyAsClass(MovieCreationRequest.class);
-		try (Connection conn = getConnection()) {
-			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
-					.insertInto(MovieEntity.table())
-					.columns(
-							MovieEntity.nameField(),
-							MovieEntity.slugField(),
-							MovieEntity.descriptionField(),
-							MovieEntity.tagsField(),
-							MovieEntity.releasedYearField(),
-							MovieEntity.languageField()
-					).values(
-							request.name(),
-							TextTransformer.slug(request.name()),
-							request.description(),
-							String.join(",", request.tags()),
-							request.releasedYear(),
-							request.language()
-					).returningResult(
-							MovieEntity.asterisk()
-					)
-					.fetchAnyInto(MovieEntity.class);
-
-			if (movie == null) {
-				throw new MovieAlreadyExistsException();
-			}
-
-			getESClient().index(i -> i
-					.index(Environment.getEsIndex())
-					.id(String.valueOf(movie.getId()))
-					.document(movie)
-			);
-
-			ctx.json(MovieInfoResponse.build(movie));
-			ctx.status(HttpStatus.CREATED);
-		} catch (IntegrityConstraintViolationException icve) {
-			throw new MovieAlreadyExistsException();
-		}
+		var movie = movieService.createMovie(request);
+		ctx.json(MovieInfoResponse.build(movie));
+		ctx.status(HttpStatus.CREATED);
 	}
 
 	@SneakyThrows
