@@ -169,27 +169,14 @@ public class MovieController {
 			}
 	)
 	public void searchMovie(Context ctx) {
-		String qWords = ctx.queryParam("q");
-
-		var hits = getESClient()
-				.search(s -> s
-								.index(Environment.getEsIndex())
-								.query(q -> q.simpleQueryString(t -> t.query(qWords))),
-						MovieEntity.class)
-				.hits()
-				.hits();
-
-		var movies = hits
-				.stream()
-				.sorted((o1, o2) -> o2.score().compareTo(o1.score()))
-				.map(Hit::source)
-				.toList();
+		String text = ctx.queryParam("q");
+		var movies = movieService.search(text);
 
 		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
 			throw new UnauthenticatedRequest();
 		}
 
 		ctx.status(HttpStatus.OK);
-		ctx.json(MovieSearchResponse.build(qWords, movies));
+		ctx.json(MovieSearchResponse.build(text, movies));
 	}
 }
