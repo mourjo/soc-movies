@@ -46,17 +46,6 @@ public class MovieController {
 		this.movieService = new MovieService();
 	}
 
-
-	@SneakyThrows
-	private Connection getConnection() {
-		String host = Environment.getPostgresHost();
-		String port = Environment.getPostgresPort();
-		String database = Environment.getPostgresDatabase();
-		String username = Environment.getPostgresUser();
-		String connectionString = "jdbc:postgresql://%s:%s/%s".formatted(host, port, database);
-		return DriverManager.getConnection(connectionString, username, null);
-	}
-
 	@SneakyThrows
 	@OpenApi(
 			summary = "Create movie",
@@ -108,17 +97,7 @@ public class MovieController {
 	)
 	public void retrieveMovie(Context ctx) {
 		String slug = ctx.pathParam("slug");
-
-		try (Connection conn = getConnection()) {
-			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
-					.select(MovieEntity.asterisk())
-					.from(MovieEntity.table())
-					.where(MovieEntity.slugField().eq(slug))
-					.fetchAnyInto(MovieEntity.class);
-
-			if (movie == null) {
-				throw new UserNotFoundException();
-			}
+		MovieEntity movie = movieService.fetchMovie(slug);
 
 			if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
 				throw new UnauthenticatedRequest();
@@ -126,7 +105,6 @@ public class MovieController {
 
 			ctx.json(MovieInfoResponse.build(movie));
 			ctx.status(HttpStatus.OK);
-		}
 	}
 
 	@SneakyThrows
@@ -159,72 +137,15 @@ public class MovieController {
 			throw new InvalidRatingException();
 		}
 
-		try (Connection conn = getConnection()) {
-			UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
-					.select(UserEntity.asterisk())
-					.from(UserEntity.table())
-					.where(UserEntity.usernameField().eq(request.username()))
-					.fetchAnyInto(UserEntity.class);
-
-			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
-					.select(MovieEntity.asterisk())
-					.from(MovieEntity.table())
-					.where(MovieEntity.slugField().eq(slug))
-					.fetchAnyInto(MovieEntity.class);
-
-			if (user == null) {
-				throw new UserNotFoundException();
-			}
-
-			if (movie == null) {
-				throw new MovieNotFoundException();
-			}
-
-			if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
-				throw new UnauthenticatedRequest();
-			}
-
-			RatingEntity rating = DSL.using(conn, SQLDialect.POSTGRES)
-					.insertInto(RatingEntity.table())
-					.columns(
-							RatingEntity.userIdField(),
-							RatingEntity.movieIdField(),
-							RatingEntity.ratingField()
-					).values(
-							user.getId(),
-							movie.getId(),
-							request.rating()
-					).returningResult(
-							RatingEntity.asterisk()
-					)
-					.fetchAnyInto(RatingEntity.class);
-
-			BigDecimal avgRating = DSL.using(conn, SQLDialect.POSTGRES)
-					.select(DSL.avg(RatingEntity.ratingField()).as("avg_rating"))
-					.from(RatingEntity.table())
-					.where(RatingEntity.movieIdField().eq(movie.getId()))
-					.fetchAny()
-					.value1();
-
-			DSL.using(conn, SQLDialect.POSTGRES)
-					.update(MovieEntity.table())
-					.set(MovieEntity.ratingField(), avgRating.doubleValue())
-					.execute();
-
-			movie.setRating(avgRating.doubleValue());
-
-			getESClient()
-					.index(i -> i
-							.index(Environment.getEsIndex())
-							.id(String.valueOf(movie.getId()))
-							.document(movie)
-					);
-
-			ctx.json(MovieInfoResponse.build(movie));
-			ctx.status(HttpStatus.OK);
-		} catch (IntegrityConstraintViolationException icve) {
-			throw new RatingAlreadyExistsException();
+		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
+			throw new UnauthenticatedRequest();
 		}
+
+		movieService.rateMovie(request.username(), slug, request.rating());
+		var movie = movieService.fetchMovie(slug);
+
+		ctx.json(MovieInfoResponse.build(movie));
+		ctx.status(HttpStatus.OK);
 	}
 
 	@SneakyThrows
