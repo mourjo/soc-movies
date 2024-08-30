@@ -136,7 +136,7 @@ public class MovieController {
 	@SneakyThrows
 	@OpenApi(
 			summary = "Search movie",
-			operationId = "retrieveMovie",
+			operationId = "searchMovie",
 			path = "/search/movie?q={query}",
 			methods = HttpMethod.GET,
 			queryParams = {
