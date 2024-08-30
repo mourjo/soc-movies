@@ -1,10 +1,8 @@
 package soc.movies.services;
 
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.List;
 import lombok.SneakyThrows;
 import org.jooq.SQLDialect;
 import org.jooq.exception.IntegrityConstraintViolationException;
@@ -190,22 +188,5 @@ public class MovieService {
 		} catch (IntegrityConstraintViolationException icve) {
 			throw new RatingAlreadyExistsException();
 		}
-	}
-
-	@SneakyThrows
-	public List<MovieEntity> search(String text) {
-		var hits = Elasticsearch.getESClient()
-				.search(s -> s
-								.index(Environment.getEsIndex())
-								.query(q -> q.simpleQueryString(t -> t.query(text))),
-						MovieEntity.class)
-				.hits()
-				.hits();
-
-		return hits
-				.stream()
-				.sorted((o1, o2) -> o2.score().compareTo(o1.score()))
-				.map(Hit::source)
-				.toList();
 	}
 }

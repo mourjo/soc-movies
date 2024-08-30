@@ -2,6 +2,7 @@ package soc.movies.web.controller;
 
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
 
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.openapi.HttpMethod;
@@ -11,6 +12,7 @@ import io.javalin.openapi.OpenApiParam;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
 import lombok.SneakyThrows;
+import soc.movies.common.Elasticsearch;
 import soc.movies.common.Environment;
 import soc.movies.entities.MovieEntity;
 import soc.movies.exceptions.InvalidRatingException;
@@ -155,7 +157,19 @@ public class MovieController {
 	)
 	public void searchMovie(Context ctx) {
 		String text = ctx.queryParam("q");
-		var movies = service.search(text);
+		var hits = Elasticsearch.getESClient()
+				.search(s -> s
+								.index(Environment.getEsIndex())
+								.query(q -> q.simpleQueryString(t -> t.query(text))),
+						MovieEntity.class)
+				.hits()
+				.hits();
+
+		var movies = hits
+				.stream()
+				.sorted((o1, o2) -> o2.score().compareTo(o1.score()))
+				.map(Hit::source)
+				.toList();
 
 		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
 			throw new UnauthenticatedRequest();
