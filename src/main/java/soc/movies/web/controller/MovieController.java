@@ -1,9 +1,7 @@
 package soc.movies.web.controller;
 
 import static soc.movies.common.Constants.AUTH_HEADER_NAME;
-import static soc.movies.common.Elasticsearch.getESClient;
 
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.openapi.HttpMethod;
@@ -12,24 +10,11 @@ import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiParam;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import lombok.SneakyThrows;
-import org.jooq.SQLDialect;
-import org.jooq.exception.IntegrityConstraintViolationException;
-import org.jooq.impl.DSL;
 import soc.movies.common.Environment;
-import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
-import soc.movies.entities.RatingEntity;
-import soc.movies.entities.UserEntity;
 import soc.movies.exceptions.InvalidRatingException;
-import soc.movies.exceptions.MovieAlreadyExistsException;
-import soc.movies.exceptions.MovieNotFoundException;
-import soc.movies.exceptions.RatingAlreadyExistsException;
 import soc.movies.exceptions.UnauthenticatedRequest;
-import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.services.MovieService;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.MovieCreationRequest;
@@ -40,10 +25,10 @@ import soc.movies.web.dto.UserInfoResponse;
 
 public class MovieController {
 
-	private final MovieService movieService;
+	private final MovieService service;
 
 	public MovieController() {
-		this.movieService = new MovieService();
+		this.service = new MovieService();
 	}
 
 	@SneakyThrows
@@ -70,7 +55,7 @@ public class MovieController {
 			throw new UnauthenticatedRequest();
 		}
 		var request = ctx.bodyAsClass(MovieCreationRequest.class);
-		var movie = movieService.createMovie(request);
+		var movie = service.createMovie(request);
 		ctx.json(MovieInfoResponse.build(movie));
 		ctx.status(HttpStatus.CREATED);
 	}
@@ -97,14 +82,14 @@ public class MovieController {
 	)
 	public void retrieveMovie(Context ctx) {
 		String slug = ctx.pathParam("slug");
-		MovieEntity movie = movieService.fetchMovie(slug);
+		MovieEntity movie = service.fetchMovie(slug);
 
-			if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
-				throw new UnauthenticatedRequest();
-			}
+		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
+			throw new UnauthenticatedRequest();
+		}
 
-			ctx.json(MovieInfoResponse.build(movie));
-			ctx.status(HttpStatus.OK);
+		ctx.json(MovieInfoResponse.build(movie));
+		ctx.status(HttpStatus.OK);
 	}
 
 	@SneakyThrows
@@ -141,8 +126,8 @@ public class MovieController {
 			throw new UnauthenticatedRequest();
 		}
 
-		movieService.rateMovie(request.username(), slug, request.rating());
-		var movie = movieService.fetchMovie(slug);
+		service.rateMovie(request.username(), slug, request.rating());
+		var movie = service.fetchMovie(slug);
 
 		ctx.json(MovieInfoResponse.build(movie));
 		ctx.status(HttpStatus.OK);
@@ -170,7 +155,7 @@ public class MovieController {
 	)
 	public void searchMovie(Context ctx) {
 		String text = ctx.queryParam("q");
-		var movies = movieService.search(text);
+		var movies = service.search(text);
 
 		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
 			throw new UnauthenticatedRequest();

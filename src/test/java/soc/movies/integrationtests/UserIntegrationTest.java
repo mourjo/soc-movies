@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import soc.movies.testutils.DbHelpers;
 import soc.movies.testutils.HttpHelpers;
@@ -13,6 +14,11 @@ import soc.movies.web.dto.UserCreationRequest;
 public class UserIntegrationTest {
 
 	final Javalin app = Launcher.buildApp();
+
+	@BeforeEach
+	void setup() {
+		DbHelpers.refreshES();
+	}
 
 	@Test
 	void createUser() {

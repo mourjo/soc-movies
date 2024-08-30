@@ -20,9 +20,9 @@ import soc.movies.web.dto.MovieCreationRequest;
 @Slf4j
 public class SampleMoviesDataGenerator {
 
-	private static final int NUM_MOVIES = 30;
+	private static final int NUM_MOVIES = 500;
 
-	private static final int RATING_PROBABILITY = 40;
+	private static final int RATING_PROBABILITY = 10;
 	private static final int BAD_RATING_PROBABILITY = 30;
 
 	private static final double RATING_VARIANCE = 3;
@@ -32,7 +32,7 @@ public class SampleMoviesDataGenerator {
 	private static final String INPUT_PATH = "src/test/resources/soc_movies.csv";
 
 	private static final List<String> users = List.of("peter", "janet", "pam", "barbara", "jack",
-			"collin", "george", "harry", "lucy", "alice", "bob", "nelly");
+			"collin", "george");
 
 	private static final Random random = new Random();
 	private static final String USER_CREATION_CURL = """

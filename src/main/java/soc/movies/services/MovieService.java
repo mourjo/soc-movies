@@ -1,7 +1,6 @@
 package soc.movies.services;
 
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import io.javalin.http.HttpStatus;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,10 +18,9 @@ import soc.movies.entities.UserEntity;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.MovieNotFoundException;
 import soc.movies.exceptions.RatingAlreadyExistsException;
-import soc.movies.exceptions.UnauthenticatedRequest;
+import soc.movies.exceptions.UserAlreadyExistsException;
 import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.MovieCreationRequest;
-import soc.movies.web.dto.MovieInfoResponse;
 
 public class MovieService {
 
@@ -37,7 +35,46 @@ public class MovieService {
 	}
 
 	@SneakyThrows
-	public MovieEntity createMovie(MovieCreationRequest request){
+	public void createUser(String username) {
+		try (Connection conn = getConnection()) {
+			UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
+					.insertInto(UserEntity.table())
+					.columns(
+							UserEntity.usernameField()
+					).values(username)
+					.returningResult(
+							UserEntity.idField(),
+							UserEntity.usernameField(),
+							UserEntity.createdAtField()
+					)
+					.fetchAnyInto(UserEntity.class);
+
+			if (user == null) {
+				throw new UserAlreadyExistsException();
+			}
+		} catch (IntegrityConstraintViolationException icve) {
+			throw new UserAlreadyExistsException();
+		}
+	}
+
+	@SneakyThrows
+	public UserEntity fetchUser(String username) {
+		try (Connection conn = getConnection()) {
+			UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
+					.select(UserEntity.asterisk())
+					.from(UserEntity.table())
+					.where(UserEntity.usernameField().eq(username))
+					.fetchAnyInto(UserEntity.class);
+
+			if (user == null) {
+				throw new UserNotFoundException();
+			}
+			return user;
+		}
+	}
+
+	@SneakyThrows
+	public MovieEntity createMovie(MovieCreationRequest request) {
 		try (Connection conn = getConnection()) {
 			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
 					.insertInto(MovieEntity.table())
@@ -76,7 +113,7 @@ public class MovieService {
 	}
 
 	@SneakyThrows
-	public MovieEntity fetchMovie(String slug){
+	public MovieEntity fetchMovie(String slug) {
 		try (Connection conn = getConnection()) {
 			MovieEntity movie = DSL.using(conn, SQLDialect.POSTGRES)
 					.select(MovieEntity.asterisk())
