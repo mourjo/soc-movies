@@ -30,13 +30,13 @@ docker compose up
 
 ## Compiling with Maven
 
-```bash 
+```bash
 ./mvnw clean package
 ```
 
 ## Running with Java 21
 
-```bash 
+```bash
 API_SECRET=humpty_dumpty java -cp target/soc-movies-1.0-SNAPSHOT.jar soc.movies.web.Launcher
 ```
 
@@ -50,6 +50,8 @@ API_SECRET=humpty_dumpty ./mvnw clean compile exec:java  -Dexec.mainClass="soc.m
 
 There is a Swagger page that will provide details about the individual APIs
 http://localhost:8818/swagger-ui
+
+![img](src/test/resources/swagger.png)
 
 ## Running tests
 
