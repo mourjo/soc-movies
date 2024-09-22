@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.time.OffsetDateTime;
 import org.jooq.Field;
 import org.jooq.SelectFieldOrAsterisk;
@@ -14,6 +15,7 @@ public class MovieEntity {
 
 	@JsonProperty("id")
 	@Column(name = "id")
+	@Id
 	long id;
 
 	@JsonProperty("name")
