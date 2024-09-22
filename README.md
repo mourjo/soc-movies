@@ -4,6 +4,10 @@
 
 ## Scope
 
+This is a repository that implements the following functionalities. It does so in a manner that 
+does not separate concerns out well. But it still works. Submit a pull request if you see 
+any improvements!
+
 - User registration with unique username
 - Movie registration with unique name
 - Users can rate movies between 0 and 10
