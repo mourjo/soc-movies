@@ -120,10 +120,6 @@ public class MovieController {
 		String slug = ctx.pathParam("slug");
 		var request = ctx.bodyAsClass(RateMovieRequest.class);
 
-		if (request.rating() > 10 || request.rating() < 0) {
-			throw new InvalidRatingException();
-		}
-
 		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
 			throw new UnauthenticatedRequest();
 		}

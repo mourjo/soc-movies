@@ -13,6 +13,7 @@ import soc.movies.common.TextTransformer;
 import soc.movies.entities.MovieEntity;
 import soc.movies.entities.RatingEntity;
 import soc.movies.entities.UserEntity;
+import soc.movies.exceptions.InvalidRatingException;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.MovieNotFoundException;
 import soc.movies.exceptions.RatingAlreadyExistsException;
@@ -128,6 +129,10 @@ public class MovieService {
 
 	@SneakyThrows
 	public void rateMovie(String username, String movieSlug, double rating) {
+		if (rating > 10 || rating < 0) {
+			throw new InvalidRatingException();
+		}
+
 		try (Connection conn = getConnection()) {
 			UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
 					.select(UserEntity.asterisk())
