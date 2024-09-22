@@ -1,5 +1,4 @@
-\
-c postgres;
+\c postgres;
 
 DROP DATABASE IF EXISTS soc_movies_test_db;
 CREATE DATABASE soc_movies_test_db;
@@ -9,8 +8,7 @@ DROP DATABASE IF EXISTS soc_movies_db;
 CREATE DATABASE soc_movies_db;
 GRANT ALL PRIVILEGES ON DATABASE soc_movies_db TO justin;
 
-\
-c soc_movies_db;
+\c soc_movies_db;
 
 
 CREATE TABLE users
@@ -46,8 +44,7 @@ CREATE TABLE ratings
 );
 
 
-\
-c soc_movies_test_db;
+\c soc_movies_test_db;
 
 CREATE TABLE users
 (
