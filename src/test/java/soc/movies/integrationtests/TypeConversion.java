@@ -12,40 +12,40 @@ import soc.movies.web.dto.UserInfoResponse;
 
 public class TypeConversion {
 
-	final static JavalinJackson jackson = new JavalinJackson();
+    final static JavalinJackson jackson = new JavalinJackson();
 
-	@SneakyThrows
-	public static Map<String, String> toMap(Response response) {
-		var typeRef = new TypeReference<Map<String, String>>() {
-		};
-		return jackson.fromJsonString(response.body().string(), typeRef.getType());
-	}
+    @SneakyThrows
+    public static Map<String, String> toMap(Response response) {
+        var typeRef = new TypeReference<Map<String, String>>() {
+        };
+        return jackson.fromJsonString(response.body().string(), typeRef.getType());
+    }
 
-	@SneakyThrows
-	public static UserInfoResponse toUserInfoResponse(Response response) {
-		var typeRef = new TypeReference<UserInfoResponse>() {
-		};
-		return jackson.fromJsonString(response.body().string(), typeRef.getType());
-	}
+    @SneakyThrows
+    public static UserInfoResponse toUserInfoResponse(Response response) {
+        var typeRef = new TypeReference<UserInfoResponse>() {
+        };
+        return jackson.fromJsonString(response.body().string(), typeRef.getType());
+    }
 
-	@SneakyThrows
-	public static MovieInfoResponse toMovieInfoResponse(Response response) {
-		var typeRef = new TypeReference<MovieInfoResponse>() {
-		};
-		return jackson.fromJsonString(response.body().string(), typeRef.getType());
-	}
+    @SneakyThrows
+    public static MovieInfoResponse toMovieInfoResponse(Response response) {
+        var typeRef = new TypeReference<MovieInfoResponse>() {
+        };
+        return jackson.fromJsonString(response.body().string(), typeRef.getType());
+    }
 
-	@SneakyThrows
-	public static ErrorResponse toErrorResponse(Response response) {
-		var typeRef = new TypeReference<ErrorResponse>() {
-		};
-		return jackson.fromJsonString(response.body().string(), typeRef.getType());
-	}
+    @SneakyThrows
+    public static ErrorResponse toErrorResponse(Response response) {
+        var typeRef = new TypeReference<ErrorResponse>() {
+        };
+        return jackson.fromJsonString(response.body().string(), typeRef.getType());
+    }
 
-	@SneakyThrows
-	public static MovieSearchResponse toMovieSearchResponse(Response response) {
-		var typeRef = new TypeReference<MovieSearchResponse>() {
-		};
-		return jackson.fromJsonString(response.body().string(), typeRef.getType());
-	}
+    @SneakyThrows
+    public static MovieSearchResponse toMovieSearchResponse(Response response) {
+        var typeRef = new TypeReference<MovieSearchResponse>() {
+        };
+        return jackson.fromJsonString(response.body().string(), typeRef.getType());
+    }
 }

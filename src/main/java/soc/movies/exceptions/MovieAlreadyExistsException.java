@@ -5,13 +5,13 @@ import soc.movies.web.dto.ErrorResponse;
 
 public class MovieAlreadyExistsException extends MovieException {
 
-	@Override
-	public ErrorResponse buildResponse() {
-		return ErrorResponse.build("Movie already exists");
-	}
+    @Override
+    public ErrorResponse buildResponse() {
+        return ErrorResponse.build("Movie already exists");
+    }
 
-	@Override
-	public HttpStatus getStatus() {
-		return HttpStatus.CONFLICT;
-	}
+    @Override
+    public HttpStatus getStatus() {
+        return HttpStatus.CONFLICT;
+    }
 }

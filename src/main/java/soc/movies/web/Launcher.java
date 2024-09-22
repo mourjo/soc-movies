@@ -12,22 +12,22 @@ import soc.movies.web.javalin.OpenAPISetup;
 @Slf4j
 public class Launcher {
 
-	public static void main(String[] args) {
-		buildApp().start(Environment.getServerPort());
-	}
+    public static void main(String[] args) {
+        buildApp().start(Environment.getServerPort());
+    }
 
-	public static Javalin buildApp() {
-		final UserController userController = new UserController();
-		final MovieController movieController = new MovieController();
+    public static Javalin buildApp() {
+        final UserController userController = new UserController();
+        final MovieController movieController = new MovieController();
 
-		return Javalin.create(OpenAPISetup::registerPlugins)
-				.get("/user/{username}", userController::retrieveUser)
-				.post("/user", userController::createUser)
-				.post("/movie", movieController::createMovie)
-				.post("/movie/{slug}/rate", movieController::rateMovie)
-				.get("/movie/{slug}", movieController::retrieveMovie)
-				.get("/search/movie", movieController::searchMovie)
-				.get("/", ctx -> ctx.json(Map.of("message", "Hello world!")))
-				.exception(Exception.class, ExceptionHandler::handleException);
-	}
+        return Javalin.create(OpenAPISetup::registerPlugins)
+            .get("/user/{username}", userController::retrieveUser)
+            .post("/user", userController::createUser)
+            .post("/movie", movieController::createMovie)
+            .post("/movie/{slug}/rate", movieController::rateMovie)
+            .get("/movie/{slug}", movieController::retrieveMovie)
+            .get("/search/movie", movieController::searchMovie)
+            .get("/", ctx -> ctx.json(Map.of("message", "Hello world!")))
+            .exception(Exception.class, ExceptionHandler::handleException);
+    }
 }

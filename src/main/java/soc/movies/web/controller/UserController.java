@@ -23,72 +23,72 @@ import soc.movies.web.dto.UserInfoResponse;
 @Slf4j
 public class UserController {
 
-	private final MovieService service;
+    private final MovieService service;
 
-	public UserController() {
-		service = new MovieService();
-	}
+    public UserController() {
+        service = new MovieService();
+    }
 
-	@SneakyThrows
-	@OpenApi(
-			summary = "Create user",
-			operationId = "createUser",
-			path = "/user",
-			requestBody = @OpenApiRequestBody(required = true, content = {
-					@OpenApiContent(from = UserCreationRequest.class)}),
-			methods = HttpMethod.POST,
-			headers = {
-					@OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
-			responses = {
-					@OpenApiResponse(status = "201", content = {
-							@OpenApiContent(from = UserInfoResponse.class)}),
-					@OpenApiResponse(status = "400", content = {
-							@OpenApiContent(from = ErrorResponse.class)}),
-					@OpenApiResponse(status = "401", content = {
-							@OpenApiContent(from = ErrorResponse.class)})
-			}
-	)
-	public void createUser(Context ctx) {
-		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
-			throw new UnauthenticatedRequest();
-		}
-		var request = ctx.bodyAsClass(UserCreationRequest.class);
-		service.createUser(request.username());
+    @SneakyThrows
+    @OpenApi(
+        summary = "Create user",
+        operationId = "createUser",
+        path = "/user",
+        requestBody = @OpenApiRequestBody(required = true, content = {
+            @OpenApiContent(from = UserCreationRequest.class)}),
+        methods = HttpMethod.POST,
+        headers = {
+            @OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
+        responses = {
+            @OpenApiResponse(status = "201", content = {
+                @OpenApiContent(from = UserInfoResponse.class)}),
+            @OpenApiResponse(status = "400", content = {
+                @OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = "401", content = {
+                @OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public void createUser(Context ctx) {
+        if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
+            throw new UnauthenticatedRequest();
+        }
+        var request = ctx.bodyAsClass(UserCreationRequest.class);
+        service.createUser(request.username());
 
-		var user = service.fetchUser(request.username());
-		ctx.json(UserInfoResponse.build(user));
-		ctx.status(HttpStatus.CREATED);
-	}
+        var user = service.fetchUser(request.username());
+        ctx.json(UserInfoResponse.build(user));
+        ctx.status(HttpStatus.CREATED);
+    }
 
-	@SneakyThrows
-	@OpenApi(
-			summary = "Fetch user",
-			operationId = "retrieveUser",
-			path = "/user/{username}",
-			methods = HttpMethod.GET,
-			pathParams = {
-					@OpenApiParam(name = "username", type = String.class, description = "Username of the user")
-			},
-			headers = {
-					@OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
-			responses = {
-					@OpenApiResponse(status = "200", content = {
-							@OpenApiContent(from = UserInfoResponse.class)}),
-					@OpenApiResponse(status = "400", content = {
-							@OpenApiContent(from = ErrorResponse.class)}),
-					@OpenApiResponse(status = "401", content = {
-							@OpenApiContent(from = ErrorResponse.class)})
-			}
-	)
-	public void retrieveUser(Context ctx) {
-		String username = ctx.pathParam("username");
+    @SneakyThrows
+    @OpenApi(
+        summary = "Fetch user",
+        operationId = "retrieveUser",
+        path = "/user/{username}",
+        methods = HttpMethod.GET,
+        pathParams = {
+            @OpenApiParam(name = "username", type = String.class, description = "Username of the user")
+        },
+        headers = {
+            @OpenApiParam(name = AUTH_HEADER_NAME, required = true, description = "Authentication Token")},
+        responses = {
+            @OpenApiResponse(status = "200", content = {
+                @OpenApiContent(from = UserInfoResponse.class)}),
+            @OpenApiResponse(status = "400", content = {
+                @OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = "401", content = {
+                @OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public void retrieveUser(Context ctx) {
+        String username = ctx.pathParam("username");
 
-		if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
-			throw new UnauthenticatedRequest();
-		}
+        if (!Environment.getApiSecret().equals(ctx.header(AUTH_HEADER_NAME))) {
+            throw new UnauthenticatedRequest();
+        }
 
-		var user = service.fetchUser(username);
-		ctx.json(UserInfoResponse.build(user));
-		ctx.status(HttpStatus.OK);
-	}
+        var user = service.fetchUser(username);
+        ctx.json(UserInfoResponse.build(user));
+        ctx.status(HttpStatus.OK);
+    }
 }

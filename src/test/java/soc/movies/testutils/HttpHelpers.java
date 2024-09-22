@@ -11,10 +11,10 @@ import soc.movies.common.Environment;
 
 public class HttpHelpers {
 
-	final static Random r = new Random();
+    final static Random r = new Random();
 
-	@NotNull
-	public static Consumer<Builder> headers() {
-		return req -> req.header(AUTH_HEADER_NAME, Environment.getApiSecret());
-	}
+    @NotNull
+    public static Consumer<Builder> headers() {
+        return req -> req.header(AUTH_HEADER_NAME, Environment.getApiSecret());
+    }
 }

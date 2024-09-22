@@ -10,32 +10,32 @@ import org.elasticsearch.client.RestClient;
 
 public class Elasticsearch {
 
-	private static Elasticsearch es = null;
-	private final ElasticsearchClient client;
+    private static Elasticsearch es = null;
+    private final ElasticsearchClient client;
 
-	private Elasticsearch() {
-		RestClient restClient = RestClient
-				.builder(HttpHost.create(
-						"http://%s:%s".formatted(Environment.getEsHost(), Environment.getEsPort())))
-				.build();
+    private Elasticsearch() {
+        RestClient restClient = RestClient
+            .builder(HttpHost.create(
+                "http://%s:%s".formatted(Environment.getEsHost(), Environment.getEsPort())))
+            .build();
 
-		ElasticsearchTransport transport = new RestClientTransport(restClient,
-				new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
+        ElasticsearchTransport transport = new RestClientTransport(restClient,
+            new JacksonJsonpMapper(JavalinJackson.defaultMapper()));
 
-		client = new ElasticsearchClient(transport);
-	}
+        client = new ElasticsearchClient(transport);
+    }
 
-	public static Elasticsearch getInstance() {
-		if (es == null) {
-			synchronized (Elasticsearch.class) {
-				es = new Elasticsearch();
-			}
-		}
-		return es;
-	}
+    public static Elasticsearch getInstance() {
+        if (es == null) {
+            synchronized (Elasticsearch.class) {
+                es = new Elasticsearch();
+            }
+        }
+        return es;
+    }
 
-	public static ElasticsearchClient getESClient() {
-		return getInstance().client;
-	}
+    public static ElasticsearchClient getESClient() {
+        return getInstance().client;
+    }
 
 }

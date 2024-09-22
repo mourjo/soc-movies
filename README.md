@@ -4,8 +4,8 @@
 
 ## Scope
 
-This is a repository that implements the following functionalities. It does so in a manner that 
-does not separate concerns out well. But it still works. Submit a pull request if you see 
+This is a repository that implements the following functionalities. It does so in a manner that
+does not separate concerns out well. But it still works. Submit a pull request if you see
 any improvements!
 
 - User registration with unique username

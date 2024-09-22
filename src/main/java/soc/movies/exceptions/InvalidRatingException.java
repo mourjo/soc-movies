@@ -5,13 +5,13 @@ import soc.movies.web.dto.ErrorResponse;
 
 public class InvalidRatingException extends MovieException {
 
-	@Override
-	public ErrorResponse buildResponse() {
-		return ErrorResponse.build("Rating must be between 0 and 10");
-	}
+    @Override
+    public ErrorResponse buildResponse() {
+        return ErrorResponse.build("Rating must be between 0 and 10");
+    }
 
-	@Override
-	public HttpStatus getStatus() {
-		return HttpStatus.BAD_REQUEST;
-	}
+    @Override
+    public HttpStatus getStatus() {
+        return HttpStatus.BAD_REQUEST;
+    }
 }

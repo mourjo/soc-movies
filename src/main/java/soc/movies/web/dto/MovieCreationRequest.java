@@ -5,6 +5,6 @@ import lombok.Builder;
 
 @Builder
 public record MovieCreationRequest(String name, String description, List<String> tags,
-								   int releasedYear, String language) {
+                                   int releasedYear, String language) {
 
 }
