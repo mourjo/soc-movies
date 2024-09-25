@@ -2,7 +2,6 @@ package soc.movies.services;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import lombok.SneakyThrows;
 import org.jooq.SQLDialect;
 import org.jooq.exception.IntegrityConstraintViolationException;
@@ -17,60 +16,12 @@ import soc.movies.exceptions.InvalidRatingException;
 import soc.movies.exceptions.MovieAlreadyExistsException;
 import soc.movies.exceptions.MovieNotFoundException;
 import soc.movies.exceptions.RatingAlreadyExistsException;
-import soc.movies.exceptions.UserAlreadyExistsException;
 import soc.movies.exceptions.UserNotFoundException;
 import soc.movies.web.dto.MovieCreationRequest;
 
+import static soc.movies.common.Environment.getConnection;
+
 public class MovieService {
-
-    @SneakyThrows
-    private Connection getConnection() {
-        String host = Environment.getPostgresHost();
-        String port = Environment.getPostgresPort();
-        String database = Environment.getPostgresDatabase();
-        String username = Environment.getPostgresUser();
-        String connectionString = "jdbc:postgresql://%s:%s/%s".formatted(host, port, database);
-        return DriverManager.getConnection(connectionString, username, null);
-    }
-
-    @SneakyThrows
-    public void createUser(String username) {
-        try (Connection conn = getConnection()) {
-            UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
-                .insertInto(UserEntity.table())
-                .columns(
-                    UserEntity.usernameField()
-                ).values(username)
-                .returningResult(
-                    UserEntity.idField(),
-                    UserEntity.usernameField(),
-                    UserEntity.createdAtField()
-                )
-                .fetchAnyInto(UserEntity.class);
-
-            if (user == null) {
-                throw new UserAlreadyExistsException();
-            }
-        } catch (IntegrityConstraintViolationException icve) {
-            throw new UserAlreadyExistsException();
-        }
-    }
-
-    @SneakyThrows
-    public UserEntity fetchUser(String username) {
-        try (Connection conn = getConnection()) {
-            UserEntity user = DSL.using(conn, SQLDialect.POSTGRES)
-                .select(UserEntity.asterisk())
-                .from(UserEntity.table())
-                .where(UserEntity.usernameField().eq(username))
-                .fetchAnyInto(UserEntity.class);
-
-            if (user == null) {
-                throw new UserNotFoundException();
-            }
-            return user;
-        }
-    }
 
     @SneakyThrows
     public MovieEntity createMovie(MovieCreationRequest request) {

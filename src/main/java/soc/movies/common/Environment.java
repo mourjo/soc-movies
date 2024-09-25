@@ -9,7 +9,11 @@ import static soc.movies.common.Constants.PG_HOST_ENV;
 import static soc.movies.common.Constants.PG_PORT_ENV_VAR;
 import static soc.movies.common.Constants.PG_USER_ENV_VAR;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Optional;
+
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,6 +49,16 @@ public class Environment {
             port = Integer.parseInt(defaultPort);
         }
         serverPort = port;
+    }
+
+    @SneakyThrows
+    public static Connection getConnection() {
+        String host = Environment.getPostgresHost();
+        String port = Environment.getPostgresPort();
+        String database = Environment.getPostgresDatabase();
+        String username = Environment.getPostgresUser();
+        String connectionString = "jdbc:postgresql://%s:%s/%s".formatted(host, port, database);
+        return DriverManager.getConnection(connectionString, username, null);
     }
 
     public static String getEsHost() {
