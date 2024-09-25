@@ -15,7 +15,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import soc.movies.common.Environment;
 import soc.movies.exceptions.UnauthenticatedRequest;
-import soc.movies.services.MovieService;
+import soc.movies.services.UserService;
 import soc.movies.web.dto.ErrorResponse;
 import soc.movies.web.dto.UserCreationRequest;
 import soc.movies.web.dto.UserInfoResponse;
@@ -23,10 +23,10 @@ import soc.movies.web.dto.UserInfoResponse;
 @Slf4j
 public class UserController {
 
-    private final MovieService service;
+    private final UserService userService;
 
     public UserController() {
-        service = new MovieService();
+        userService = new UserService();
     }
 
     @SneakyThrows
@@ -53,9 +53,9 @@ public class UserController {
             throw new UnauthenticatedRequest();
         }
         var request = ctx.bodyAsClass(UserCreationRequest.class);
-        service.createUser(request.username());
+        userService.createUser(request.username());
 
-        var user = service.fetchUser(request.username());
+        var user = userService.fetchUser(request.username());
         ctx.json(UserInfoResponse.build(user));
         ctx.status(HttpStatus.CREATED);
     }
@@ -87,7 +87,7 @@ public class UserController {
             throw new UnauthenticatedRequest();
         }
 
-        var user = service.fetchUser(username);
+        var user = userService.fetchUser(username);
         ctx.json(UserInfoResponse.build(user));
         ctx.status(HttpStatus.OK);
     }
